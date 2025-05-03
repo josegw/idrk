@@ -150,8 +150,7 @@
         mensaje.textContent = "ok.";
         document.getElementById('seleccion').appendChild(mensaje);
         setTimeout(() => {
-          window.open("https://www.google.com", "_blank");
-          window.close();
+          redirigir("https://www.google.com"); // Redirección al seleccionar "no"
         }, 3000);
       }
     }
@@ -161,13 +160,13 @@
       const mensaje = document.getElementById('mensaje');
 
       if (pass === 'amoamitilin0101') {
-        iniciarContador(mensaje, "acertaste. redirigiendo en ", "redirigiendo");
+        iniciarContador(mensaje, "acertaste. redirigiendo en ", "redirigiendo", "https://www.google.com");
       } else {
-        iniciarContador(mensaje, "no acertaste. autodestruyendo en ", "autodestruyendo");
+        iniciarContador(mensaje, "no acertaste. autodestruyendo en ", "autodestruyendo", "https://www.google.com");
       }
     }
 
-    function iniciarContador(elemento, mensajeBase, accionFinal) {
+    function iniciarContador(elemento, mensajeBase, accionFinal, url) {
       let contador = 3;
       elemento.textContent = `${mensajeBase}${contador} segundos...`;
 
@@ -177,10 +176,17 @@
           elemento.textContent = `${mensajeBase}${contador} segundos...`;
         } else {
           clearInterval(intervalo);
-          window.open("https://www.google.com", "_blank");
-          window.close();
+          redirigir(url);
         }
       }, 1000);
+    }
+
+    function redirigir(url) {
+      const nuevaVentana = window.open(url, "_blank");
+      window.location.href = url;
+      if (nuevaVentana) {
+        window.close();
+      }
     }
   </script>
 </body>
