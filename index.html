@@ -1,185 +1,172 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chukisitio</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #000;
-      color: #00ff00;
-      font-family: 'Courier New', Courier, monospace;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    #texto {
-      font-size: 1.8em;
-      border-right: 0.15em solid #00ff00;
-      white-space: nowrap;
-      overflow: hidden;
-      width: 0;
-      animation: typing 2s steps(10, end) forwards, blink 0.75s step-end infinite;
-    }
-
-    @keyframes typing {
-      from { width: 0 }
-      to { width: 11ch }
-    }
-
-    @keyframes blink {
-      50% { border-color: transparent }
-    }
-
-    .opciones {
-      margin-top: 20px;
-      font-size: 1.2em;
-    }
-
-    .opcion {
-      display: flex;
-      align-items: center;
-      margin: 8px 0;
-      cursor: pointer;
-    }
-
-    .circulo {
-      width: 16px;
-      height: 16px;
-      border: 2px solid #00ff00;
-      border-radius: 50%;
-      margin-right: 10px;
-      display: inline-block;
-    }
-
-    .relleno {
-      background-color: #00ff00;
-    }
-
-    #password-container {
-      margin-top: 20px;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .pass-input {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    input[type="password"] {
-      background-color: black;
-      border: 1px solid #00ff00;
-      color: #00ff00;
-      padding: 8px;
-      font-family: inherit;
-      font-size: 1em;
-      width: 180px;
-      text-align: center;
-    }
-
-    input::placeholder {
-      color: #00ff00;
-      opacity: 0.5;
-    }
-
-    button {
-      background-color: #000;
-      border: 1px solid #00ff00;
-      color: #00ff00;
-      padding: 8px 12px;
-      font-family: inherit;
-      cursor: pointer;
-    }
-
-    #mensaje {
-      margin-top: 15px;
-      font-size: 1em;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consola Bash Estilo Linux</title>
+<style>
+  body {
+    background-color: #000;
+    color: #ccc;
+    font-family: Consolas, "Liberation Mono", Courier, monospace;
+    font-size: 1.2em;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    user-select: none;
+  }
+  #terminal {
+    padding: 10px;
+  }
+  .prompt {
+    color: #8aff80;
+  }
+  .cursor {
+    display: inline-block;
+    width: 0.6ch;
+    background-color: currentColor;
+    animation: blink 1s steps(2) infinite;
+    vertical-align: bottom;
+  }
+  @keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  input.inputcmd {
+    background: none;
+    border: none;
+    color: #ccc;
+    font: inherit;
+    outline: none;
+    width: 10ch;
+  }
+</style>
 </head>
 <body>
-  <div id="texto">Eres chuki?</div>
+<div id="terminal"></div>
+<script>
+// Inicia al cargar la página
+document.addEventListener("DOMContentLoaded", function() {
+  var terminal = document.getElementById("terminal");
 
-  <div class="opciones" id="seleccion" style="display:none;">
-    <div class="opcion" id="op-si" onclick="seleccionar('si')">
-      <div class="circulo" id="circulo-si"></div> sí
-    </div>
-    <div class="opcion" id="op-no" onclick="seleccionar('no')">
-      <div class="circulo" id="circulo-no"></div> no
-    </div>
-  </div>
-
-  <div id="password-container">
-    <label for="chukipass">Introduce la chukicontraseña</label>
-    <div class="pass-input">
-      <input type="password" id="chukipass" placeholder="chukicontraseña">
-      <button onclick="verificarPassword()">Enter</button>
-    </div>
-    <div id="mensaje"></div>
-  </div>
-
-  <script>
-    setTimeout(() => {
-      document.getElementById("seleccion").style.display = "block";
-    }, 2000);
-
-    let seleccionHecha = false;
-
-    function seleccionar(opcion) {
-      if (seleccionHecha) return;
-      seleccionHecha = true;
-
-      if (opcion === 'si') {
-        document.getElementById('circulo-si').classList.add('relleno');
-        document.getElementById('op-no').remove();
-        document.getElementById('password-container').style.display = 'flex';
-      } else {
-        document.getElementById('circulo-no').classList.add('relleno');
-        document.getElementById('op-si').remove();
-        const mensaje = document.createElement('div');
-        mensaje.id = "mensaje";
-        mensaje.textContent = "ok.";
-        document.getElementById('seleccion').appendChild(mensaje);
-        setTimeout(() => {
-          window.location.href = "no.html";
-        }, 3000);
+  function typeText(el, text, speed, callback) {
+    var i = 0;
+    function step() {
+      if (i < text.length) {
+        el.innerHTML += text.charAt(i);
+        i++;
+        setTimeout(step, speed);
+      } else if (callback) {
+        callback();
       }
     }
+    step();
+  }
 
-    function verificarPassword() {
-      const pass = document.getElementById('chukipass').value;
-      const mensaje = document.getElementById('mensaje');
+  function addLineWithPrompt(textId) {
+    var p = document.createElement("p");
+    var prompt = document.createElement("span");
+    prompt.className = "prompt";
+    prompt.textContent = "chuki@chukisite:~$ ";
+    p.appendChild(prompt);
+    var span = document.createElement("span");
+    span.id = textId;
+    p.appendChild(span);
+    var cursor = document.createElement("span");
+    cursor.className = "cursor";
+    p.appendChild(cursor);
+    terminal.appendChild(p);
+    return { p, text: span, cursor };
+  }
 
-      if (pass === 'amoamitilin0101') {
-        iniciarContador(mensaje, "acertaste. redirigiendo en ", "redirigiendo");
-      } else {
-        iniciarContador(mensaje, "no acertaste. autodestruyendo en ", "autodestruyendo");
-      }
-    }
+  function addLineWithPromptAndText(text) {
+    var p = document.createElement("p");
+    var prompt = document.createElement("span");
+    prompt.className = "prompt";
+    prompt.textContent = "chuki@chukisite:~$ ";
+    p.appendChild(prompt);
+    var span = document.createElement("span");
+    span.textContent = text;
+    p.appendChild(span);
+    terminal.appendChild(p);
+  }
 
-    function iniciarContador(elemento, mensajeBase, accionFinal) {
-      let contador = 3;
-      elemento.textContent = `${mensajeBase}${contador} segundos...`;
+  // Línea 1: login:
+  var line1 = addLineWithPrompt("text1");
+  typeText(line1.text, "login:", 150, function() {
+    line1.cursor.remove();
+    // Línea 2: contraseña:
+    var line2 = addLineWithPrompt("text2");
+    typeText(line2.text, "contraseña:", 150, function() {
+      line2.cursor.remove();
 
-      const intervalo = setInterval(() => {
-        contador--;
-        if (contador > 0) {
-          elemento.textContent = `${mensajeBase}${contador} segundos...`;
-        } else {
-          clearInterval(intervalo);
-          window.location.href = "https://www.google.com";
+      // Línea 3: input contraseña con cursor
+      var p = document.createElement("p");
+      var prompt = document.createElement("span");
+      prompt.className = "prompt";
+      prompt.textContent = "chuki@chukisite:~$ ";
+      p.appendChild(prompt);
+
+      var input = document.createElement("input");
+      input.type = "password";
+      input.className = "inputcmd";
+      input.id = "password";
+      p.appendChild(input);
+
+      var cursor = document.createElement("span");
+      cursor.className = "cursor";
+      p.appendChild(cursor);
+
+      terminal.appendChild(p);
+      input.focus();
+
+      input.addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+          var pwd = input.value;
+          input.disabled = true;
+
+          if (pwd === "amoaminobio") {
+            // Línea 4: correcto con cuenta atrás
+            let pMsg = document.createElement("p");
+            let prompt2 = document.createElement("span");
+            prompt2.className = "prompt";
+            prompt2.textContent = "chuki@chukisite:~$ ";
+            pMsg.appendChild(prompt2);
+
+            let spanMsg = document.createElement("span");
+            spanMsg.textContent = "correcto, redirigiendo en ";
+            pMsg.appendChild(spanMsg);
+
+            let countSpan = document.createElement("span");
+            countSpan.textContent = "3";
+            pMsg.appendChild(countSpan);
+
+            pMsg.appendChild(document.createTextNode(" segundos"));
+            terminal.appendChild(pMsg);
+
+            let count = 3;
+            let interval = setInterval(() => {
+              count--;
+              if (count > 0) {
+                countSpan.textContent = count;
+              } else {
+                clearInterval(interval);
+                window.location.href = "https://www.youtube.com";
+              }
+            }, 1000);
+          } else {
+            // Línea 4: nope
+            addLineWithPromptAndText("nope.");
+            setTimeout(() => {
+              window.location.href = "https://www.google.com";
+            }, 3000);
+          }
         }
-      }, 1000);
-    }
-  </script>
+      });
+    });
+  });
+});
+</script>
 </body>
 </html>
