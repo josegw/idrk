@@ -1,118 +1,105 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Page Not Found | Netlify</title>
+  <title>Jumpscare</title>
   <style>
-    * {
+    body, html {
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-    }
-
-    html, body {
+      overflow: hidden;
+      background-color: black;
       height: 100%;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-                   Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-      background-color: #ffffff;
-      color: #2e2e2e;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      flex-direction: column;
+      width: 100%;
     }
-
-    h1 {
-      font-size: 64px;
-      margin-bottom: 10px;
+    #videoContainer {
+      position: relative;
+      width: 100%;
+      height: 100%;
     }
-
-    p {
-      font-size: 18px;
-      margin: 5px 0;
-      max-width: 500px;
-    }
-
-    .code {
-      font-size: 14px;
-      color: #999;
-      margin-top: 10px;
-    }
-
-    button {
-      margin-top: 25px;
-      background-color: #00ad9f;
-      color: white;
-      padding: 10px 20px;
-      font-size: 15px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    video {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
+    #scareVideo {
+      width: 100%;
+      height: 100%;
       object-fit: cover;
-      z-index: 9999;
+    }
+    #userInfo {
+      position: absolute;
+      top: 10%;
+      left: 5%;
+      color: black;
+      background-color: rgba(255, 255, 255, 0.7);
+      padding: 20px;
+      border-radius: 10px;
       display: none;
+      z-index: 10;
     }
   </style>
 </head>
 <body>
 
-  <div id="error-screen">
-    <h1>Page Not Found</h1>
-    <p>Looks like you've followed a broken link or entered a URL that doesn't exist on this site.</p>
-    <p class="code">Error Code: 404</p>
-    <button id="returnBtn">Back to homepage</button>
-  </div>
-
-  <video id="scareVideo" preload="auto" loop muted playsinline>
-    <source src="no.mp4" type="video/mp4" />
-    Your browser does not support the video tag.
+<div id="videoContainer">
+  <video id="scareVideo" autoplay loop muted playsinline>
+    <source src="https://example.com/tu-video.mp4" type="video/mp4">
+    Tu navegador no soporta el elemento de video.
   </video>
+  <div id="userInfo">
+    <p><strong>Dirección IP:</strong> <span id="ip"></span></p>
+    <p><strong>Agente de Usuario:</strong> <span id="userAgent"></span></p>
+    <p><strong>Tipo de Dispositivo:</strong> <span id="deviceType"></span></p>
+  </div>
+</div>
 
-  <script>
-    const btn = document.getElementById('returnBtn');
-    const video = document.getElementById('scareVideo');
-    const errorScreen = document.getElementById('error-screen');
+<script>
+  const video = document.getElementById('scareVideo');
+  const userInfo = document.getElementById('userInfo');
+  const ipSpan = document.getElementById('ip');
+  const userAgentSpan = document.getElementById('userAgent');
+  const deviceTypeSpan = document.getElementById('deviceType');
 
-    // Prevenir scroll
-    document.body.addEventListener('touchmove', function(e) {
-      e.preventDefault();
-    }, { passive: false });
+  // Función para determinar el tipo de dispositivo
+  function getDeviceType() {
+    const ua = navigator.userAgent;
+    if (/mobile/i.test(ua)) return "Móvil";
+    if (/tablet/i.test(ua)) return "Tablet";
+    return "Escritorio";
+  }
 
-    btn.addEventListener('click', async () => {
-      try {
-        errorScreen.style.display = 'none';
-        video.style.display = 'block';
-        video.loop = true;
-        video.muted = false;
-        video.volume = 1.0;
+  // Obtener dirección IP usando ipify
+  fetch('https://api.ipify.org?format=json')
+    .then(response => response.json())
+    .then(data => {
+      ipSpan.textContent = data.ip;
+    })
+    .catch(() => {
+      ipSpan.textContent = "No disponible";
+    });
 
-        await video.play();
+  // Obtener agente de usuario y tipo de dispositivo
+  userAgentSpan.textContent = navigator.userAgent;
+  deviceTypeSpan.textContent = getDeviceType();
 
-        if (video.requestFullscreen) {
-          await video.requestFullscreen();
-        } else if (video.webkitEnterFullscreen) {
-          video.webkitEnterFullscreen();
-        }
-      } catch (e) {
-        video.style.display = 'block';
-        video.play();
+  // Detectar salida de pantalla completa
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+      userInfo.style.display = 'block';
+    }
+  });
+
+  // Iniciar reproducción y solicitar pantalla completa
+  video.addEventListener('canplay', () => {
+    video.muted = false;
+    video.play().then(() => {
+      if (video.requestFullscreen) {
+        video.requestFullscreen();
+      } else if (video.webkitEnterFullscreen) {
+        video.webkitEnterFullscreen();
       }
+    }).catch(err => {
+      console.error("Error al reproducir el video:", err);
     });
-
-    // Reanudar si se pausa accidentalmente
-    video.addEventListener('pause', () => {
-      video.play().catch(() => {});
-    });
-  </script>
+  });
+</script>
 
 </body>
 </html>
