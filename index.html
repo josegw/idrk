@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chukisitio</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      color: #00ff00;
+      font-family: 'Courier New', Courier, monospace;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #texto {
+      font-size: 1.8em;
+      border-right: 0.15em solid #00ff00;
+      white-space: nowrap;
+      overflow: hidden;
+      width: 0;
+      animation: typing 2s steps(10, end) forwards, blink 0.75s step-end infinite;
+    }
+
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 11ch }
+    }
+
+    @keyframes blink {
+      50% { border-color: transparent }
+    }
+
+    .opciones {
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+
+    .opcion {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+      cursor: pointer;
+    }
+
+    .circulo {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #00ff00;
+      border-radius: 50%;
+      margin-right: 10px;
+      display: inline-block;
+    }
+
+    .relleno {
+      background-color: #00ff00;
+    }
+
+    #password-container {
+      margin-top: 20px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .pass-input {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    input[type="password"] {
+      background-color: black;
+      border: 1px solid #00ff00;
+      color: #00ff00;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 1em;
+      width: 180px;
+      text-align: center;
+    }
+
+    input::placeholder {
+      color: #00ff00;
+      opacity: 0.5;
+    }
+
+    button {
+      background-color: #000;
+      border: 1px solid #00ff00;
+      color: #00ff00;
+      padding: 8px 12px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    #mensaje {
+      margin-top: 15px;
+      font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+  <div id="texto">Eres chuki?</div>
+
+  <div class="opciones" id="seleccion" style="display:none;">
+    <div class="opcion" id="op-si" onclick="seleccionar('si')">
+      <div class="circulo" id="circulo-si"></div> sí
+    </div>
+    <div class="opcion" id="op-no" onclick="seleccionar('no')">
+      <div class="circulo" id="circulo-no"></div> no
+    </div>
+  </div>
+
+  <div id="password-container">
+    <label for="chukipass">Introduce la chukicontraseña</label>
+    <div class="pass-input">
+      <input type="password" id="chukipass" placeholder="chukicontraseña">
+      <button onclick="verificarPassword()">Enter</button>
+    </div>
+    <div id="mensaje"></div>
+  </div>
+
+  <script>
+    setTimeout(() => {
+      document.getElementById("seleccion").style.display = "block";
+    }, 2000);
+
+    let seleccionHecha = false;
+
+    function seleccionar(opcion) {
+      if (seleccionHecha) return;
+      seleccionHecha = true;
+
+      if (opcion === 'si') {
+        document.getElementById('circulo-si').classList.add('relleno');
+        document.getElementById('op-no').remove();
+        document.getElementById('password-container').style.display = 'flex';
+      } else {
+        document.getElementById('circulo-no').classList.add('relleno');
+        document.getElementById('op-si').remove();
+        const mensaje = document.createElement('div');
+        mensaje.id = "mensaje";
+        mensaje.textContent = "ok.";
+        document.getElementById('seleccion').appendChild(mensaje);
+        setTimeout(() => {
+          window.location.href = "https://www.google.com";
+        }, 3000);
+      }
+    }
+
+    function verificarPassword() {
+      const pass = document.getElementById('chukipass').value;
+      const mensaje = document.getElementById('mensaje');
+
+      if (pass === 'amoamitilin0101') {
+        iniciarContador(mensaje, "acertaste. redirigiendo en ", "redirigiendo");
+      } else {
+        iniciarContador(mensaje, "no acertaste. autodestruyendo en ", "autodestruyendo");
+      }
+    }
+
+    function iniciarContador(elemento, mensajeBase, accionFinal) {
+      let contador = 3;
+      elemento.textContent = `${mensajeBase}${contador} segundos...`;
+
+      const intervalo = setInterval(() => {
+        contador--;
+        if (contador > 0) {
+          elemento.textContent = `${mensajeBase}${contador} segundos...`;
+        } else {
+          clearInterval(intervalo);
+          window.location.href = "https://www.google.com";
+        }
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
