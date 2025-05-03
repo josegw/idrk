@@ -150,7 +150,7 @@
         mensaje.textContent = "ok.";
         document.getElementById('seleccion').appendChild(mensaje);
         setTimeout(() => {
-          window.location.href = "https://www.google.com";
+          location.replace("https://www.google.com");
         }, 3000);
       }
     }
@@ -176,7 +176,7 @@
           elemento.textContent = `${mensajeBase}${contador} segundos...`;
         } else {
           clearInterval(intervalo);
-          window.location.href = "https://www.google.com";
+          location.replace("https://www.google.com");
         }
       }, 1000);
     }
