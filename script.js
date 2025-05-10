@@ -1,15 +1,33 @@
 document.getElementById("enviarBtn").addEventListener("click", () => {
-  const data = {
-    mensaje: "Hola desde Netlify Function",
-    fecha: new Date().toISOString()
+  const seleccion = document.getElementById("formato").value;
+
+  const formatos = {
+    formato1: {
+      mensaje: "Hola desde formato 1",
+      fecha: new Date().toISOString()
+    },
+    formato2: {
+      content: "Hola desde formato 2",
+      date: new Date().toISOString()
+    },
+    formato3: {
+      text: "Hola desde formato 3"
+    },
+    formato4: "Hola desde formato 4 (texto plano)"
   };
 
-  document.getElementById("salida").textContent = "Enviando datos:\n" + JSON.stringify(data, null, 2);
+  const data = formatos[seleccion];
+  const esTextoPlano = typeof data === "string";
+
+  document.getElementById("salida").textContent = "Enviando datos:\n" +
+    (esTextoPlano ? data : JSON.stringify(data, null, 2));
 
   fetch("/.netlify/functions/enviar", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
+    headers: {
+      "Content-Type": esTextoPlano ? "text/plain" : "application/json"
+    },
+    body: esTextoPlano ? data : JSON.stringify(data)
   })
     .then(res => res.text())
     .then(text => {
