@@ -2,22 +2,23 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Enviar POST al Webhook</title>
+  <title>Prueba Webhook.site</title>
 </head>
 <body>
-  <h1>Enviar datos al Webhook</h1>
+  <h1>Prueba de envío a webhook.site</h1>
   <button onclick="enviarPOST()">Enviar</button>
+  <pre id="salida"></pre>
 
   <script>
     function enviarPOST() {
       const data = {
-        mensaje: "Hola desde HTML",
+        mensaje: "Hola desde webhook.site",
         fecha: new Date().toISOString()
       };
 
-      console.log("Enviando datos:", data); // Para debug en la consola
+      document.getElementById("salida").textContent = "Datos a enviar:\n" + JSON.stringify(data, null, 2);
 
-      fetch("https://webhookbeam.com/webhook/josegaznares/ifykyk", {
+      fetch("https://webhook.site/4dfd8076-d213-4fd0-a4ed-3d1b3be0dd80", { // <-- reemplaza con tu URL
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -26,14 +27,13 @@
       })
       .then(response => {
         if (response.ok) {
-          alert("POST enviado exitosamente.");
+          document.getElementById("salida").textContent += "\n\nPOST enviado exitosamente.";
         } else {
-          alert("Error al enviar el POST. Código: " + response.status);
+          document.getElementById("salida").textContent += "\n\nError al enviar el POST. Código: " + response.status;
         }
       })
       .catch(error => {
-        console.error("Error:", error);
-        alert("Error de red.");
+        document.getElementById("salida").textContent += "\n\nError de red: " + error.message;
       });
     }
   </script>
