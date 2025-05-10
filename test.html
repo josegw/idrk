@@ -2,40 +2,12 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Prueba Webhook.site</title>
+  <title>Enviar Webhook</title>
+  <script src="script.js" defer></script>
 </head>
 <body>
-  <h1>Prueba de envío a webhook.site</h1>
-  <button onclick="enviarPOST()">Enviar</button>
+  <h1>Enviar mensaje al webhook original</h1>
+  <button id="enviarBtn">Enviar</button>
   <pre id="salida"></pre>
-
-  <script>
-    function enviarPOST() {
-      const data = {
-        mensaje: "Hola desde webhook.site",
-        fecha: new Date().toISOString()
-      };
-
-      document.getElementById("salida").textContent = "Datos a enviar:\n" + JSON.stringify(data, null, 2);
-
-      fetch("https://webhook.site/4dfd8076-d213-4fd0-a4ed-3d1b3be0dd80", { // <-- reemplaza con tu URL
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-      })
-      .then(response => {
-        if (response.ok) {
-          document.getElementById("salida").textContent += "\n\nPOST enviado exitosamente.";
-        } else {
-          document.getElementById("salida").textContent += "\n\nError al enviar el POST. Código: " + response.status;
-        }
-      })
-      .catch(error => {
-        document.getElementById("salida").textContent += "\n\nError de red: " + error.message;
-      });
-    }
-  </script>
 </body>
 </html>
