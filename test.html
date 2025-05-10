@@ -2,52 +2,60 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Enviar Webhook</title>
+  <title>Detector de visitante</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    #response {
-      margin-top: 20px;
-      padding: 10px;
-      background-color: #f4f4f4;
-      border: 1px solid #ccc;
-      font-family: monospace;
+    body {
+      font-family: sans-serif;
+      padding: 1em;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 1em;
       white-space: pre-wrap;
+      border: 1px solid #ccc;
     }
   </style>
 </head>
 <body>
-  <h1>Enviar datos ala verga</h1>
-  <button id="sendRequest">Enviar</button>
-  <div id="response"></div>
+  <h1>Analizando visitante...</h1>
+  <pre id="log">Recolectando datos...</pre>
 
   <script>
-    document.getElementById('sendRequest').addEventListener('click', () => {
-      const data = {
-        key: 'valor',
-        otraClave: 'otroValor'
-      };
+    async function obtenerDatos() {
+      const log = document.getElementById('log');
+      try {
+        const ipResp = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipResp.json();
 
-      document.getElementById('response').textContent = 'Enviando datos:\n' + JSON.stringify(data, null, 2);
+        const datos = {
+          ip: ipData.ip,
+          userAgent: navigator.userAgent,
+          idioma: navigator.language,
+          plataforma: navigator.platform,
+          memoria: navigator.deviceMemory || "no disponible",
+          nucleosCPU: navigator.hardwareConcurrency || "no disponible",
+          anchoPantalla: screen.width,
+          altoPantalla: screen.height,
+          fecha: new Date().toISOString()
+        };
 
-      fetch('https://webhookbeam.com/webhook/josegaznares/ifykyk', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      })
-      .then(response => {
-        // Verificar si la respuesta es válida
-        return response.text(); // Obtener la respuesta completa como texto
-      })
-      .then(text => {
-        // Aquí puedes ver toda la respuesta completa del webhook
-        document.getElementById('response').textContent += '\n\nRespuesta completa del Webhook:\n' + text;
-      })
-      .catch(error => {
-        document.getElementById('response').textContent += '\n\nError:\n' + error;
-      });
-    });
+        log.textContent = 'Enviando datos al webhook...\n\n' + JSON.stringify(datos, null, 2);
+
+        const resp = await fetch('https://webhookbeam.com/webhook/josegaznares/ifykyk', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(datos)
+        });
+
+        const texto = await resp.text();
+        log.textContent += '\n\nRespuesta del Webhook:\n' + texto;
+      } catch (err) {
+        log.textContent += '\n\nError al enviar datos:\n' + err;
+      }
+    }
+
+    obtenerDatos();
   </script>
 </body>
 </html>
