@@ -2,11 +2,18 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Enviar Webhook</title>
+  <title>Webhook Test</title>
   <script src="script.js" defer></script>
 </head>
 <body>
-  <h1>Enviar mensaje al webhook original</h1>
+  <h1>Prueba de Webhook</h1>
+  <p>Selecciona un formato y haz clic en enviar:</p>
+  <select id="formato">
+    <option value="formato1">Formato 1 (mensaje + fecha)</option>
+    <option value="formato2">Formato 2 (content + date)</option>
+    <option value="formato3">Formato 3 (text)</option>
+    <option value="formato4">Formato 4 (texto plano)</option>
+  </select>
   <button id="enviarBtn">Enviar</button>
   <pre id="salida"></pre>
 </body>
