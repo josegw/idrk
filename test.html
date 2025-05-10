@@ -4,25 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Webhook</title>
+    <style>
+        #response {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            white-space: pre-wrap; /* Para que los saltos de línea se mantengan */
+            font-family: monospace;
+        }
+    </style>
 </head>
 <body>
+    <h1>Prueba de Webhook</h1>
     <button id="sendRequest">Enviar Request</button>
+
+    <div id="response"></div> <!-- Aquí se mostrará la respuesta -->
 
     <script>
         document.getElementById('sendRequest').addEventListener('click', () => {
+            // Datos a enviar
+            const data = {
+                key: 'valor',
+                otraClave: 'otroValor'
+            };
+
+            // Muestra los datos antes de enviarlos en la página
+            document.getElementById('response').textContent = 'Datos a enviar:\n' + JSON.stringify(data, null, 2);
+
+            // Realiza la solicitud POST al Webhook
             fetch('https://webhookbeam.com/webhook/josegaznares/ifykyk', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json' // Asegúrate de enviar JSON
                 },
-                body: JSON.stringify({
-                    key: 'valor',
-                    otraClave: 'otroValor'
-                })
+                body: JSON.stringify(data) // Convierte el objeto a JSON
             })
-            .then(response => response.json())
-            .then(data => console.log('Respuesta:', data))
-            .catch(error => console.error('Error:', error));
+            .then(response => response.json()) // Asegúrate de recibir la respuesta como JSON
+            .then(data => {
+                // Muestra la respuesta del Webhook en la página
+                document.getElementById('response').textContent += '\n\nRespuesta del Webhook:\n' + JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                // Muestra el error en la página si ocurre
+                document.getElementById('response').textContent += '\n\nError:\n' + error;
+            });
         });
     </script>
 </body>
