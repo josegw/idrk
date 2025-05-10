@@ -1,5 +1,4 @@
-// netlify/functions/sendWebhook.js
-export async function handler(event) {
+exports.handler = async function (event) {
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -27,4 +26,4 @@ export async function handler(event) {
       body: JSON.stringify({ error: error.message })
     };
   }
-}
+};
