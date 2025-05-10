@@ -16,8 +16,8 @@
   </style>
 </head>
 <body>
-  <h1>Generador de Robux</h1>
-  <button id="sendRequest">Generar 999999 robux</button>
+  <h1>Enviar besitos al Webhook</h1>
+  <button id="sendRequest">Enviar</button>
   <div id="response"></div>
 
   <script>
@@ -37,11 +37,19 @@
         body: JSON.stringify(data)
       })
       .then(response => {
-        // Asegúrate de que la respuesta sea JSON
-        return response.json();  // Cambié a `response.json()` para manejar la respuesta como JSON
+        // Agregar una depuración para ver el tipo de respuesta y su contenido
+        console.log('Respuesta del servidor: ', response);
+        return response.text(); // Cambié a text() para ver si la respuesta es texto simple
       })
-      .then(result => {
-        document.getElementById('response').textContent += '\n\nRespuesta (JSON):\n' + JSON.stringify(result, null, 2);
+      .then(text => {
+        console.log('Texto recibido: ', text); // Muestra el texto recibido antes de intentar parsearlo
+
+        try {
+          const result = JSON.parse(text); // Intentar convertir el texto a JSON
+          document.getElementById('response').textContent += '\n\nRespuesta (JSON):\n' + JSON.stringify(result, null, 2);
+        } catch (e) {
+          document.getElementById('response').textContent += '\n\nRespuesta (no JSON):\n' + text;
+        }
       })
       .catch(error => {
         document.getElementById('response').textContent += '\n\nError:\n' + error;
