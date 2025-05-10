@@ -1,47 +1,49 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Webhook</title>
-    <style>
-        #response {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #f4f4f4;
-            border: 1px solid #ddd;
-            white-space: pre-wrap;
-            font-family: monospace;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Enviar Webhook</title>
+  <style>
+    #response {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f4f4f4;
+      border: 1px solid #ccc;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+  </style>
 </head>
 <body>
-    <h1>Prueba de Webhook (FormData)</h1>
-    <button id="sendRequest">Enviar Request</button>
+  <h1>Enviar datos al Webhook</h1>
+  <button id="sendRequest">Enviar</button>
+  <div id="response"></div>
 
-    <div id="response"></div>
+  <script>
+    document.getElementById('sendRequest').addEventListener('click', () => {
+      const data = {
+        key: 'valor',
+        otraClave: 'otroValor'
+      };
 
-    <script>
-        document.getElementById('sendRequest').addEventListener('click', () => {
-            const formData = new FormData();
-            formData.append('key', 'valor');
-            formData.append('otraClave', 'otroValor');
+      document.getElementById('response').textContent = 'Enviando datos:\n' + JSON.stringify(data, null, 2);
 
-            // Mostrar datos (no se puede ver el contenido de FormData directamente)
-            document.getElementById('response').textContent = 'Datos a enviar:\nkey: valor\notraClave: otroValor';
-
-            fetch('https://webhookbeam.com/webhook/josegaznares/ifykyk', {
-                method: 'POST',
-                body: formData // No se necesita 'Content-Type', fetch lo pone solo
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('response').textContent += '\n\nRespuesta del Webhook:\n' + JSON.stringify(data, null, 2);
-            })
-            .catch(error => {
-                document.getElementById('response').textContent += '\n\nError:\n' + error;
-            });
-        });
-    </script>
+      fetch('/.netlify/functions/sendWebhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(result => {
+        document.getElementById('response').textContent += '\n\nRespuesta:\n' + JSON.stringify(result, null, 2);
+      })
+      .catch(error => {
+        document.getElementById('response').textContent += '\n\nError:\n' + error;
+      });
+    });
+  </script>
 </body>
 </html>
