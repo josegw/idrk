@@ -16,7 +16,7 @@
   </style>
 </head>
 <body>
-  <h1>testeo</h1>
+  <h1>como hacerte entender</h1>
   <button id="sendRequest">Enviar</button>
   <div id="response"></div>
 
@@ -36,9 +36,14 @@
         },
         body: JSON.stringify(data)
       })
-      .then(response => response.json())
-      .then(result => {
-        document.getElementById('response').textContent += '\n\nRespuesta:\n' + JSON.stringify(result, null, 2);
+      .then(response => response.text())
+      .then(text => {
+        try {
+          const result = JSON.parse(text);
+          document.getElementById('response').textContent += '\n\nRespuesta:\n' + JSON.stringify(result, null, 2);
+        } catch (e) {
+          document.getElementById('response').textContent += '\n\nRespuesta (no JSON):\n' + text;
+        }
       })
       .catch(error => {
         document.getElementById('response').textContent += '\n\nError:\n' + error;
