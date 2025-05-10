@@ -4,7 +4,8 @@ exports.handler = async function (event) {
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
-      body: 'Method Not Allowed',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'Method Not Allowed' }),
     };
   }
 
@@ -20,27 +21,38 @@ exports.handler = async function (event) {
     }
   };
 
-  // Promesa para manejar la solicitud HTTPS
-  const result = await new Promise((resolve, reject) => {
-    const req = https.request(options, res => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => resolve({
-        statusCode: 200,
-        body: JSON.stringify({ success: true, response: data })
-      }));
-    });
-
-    req.on('error', error => {
-      reject({
-        statusCode: 500,
-        body: JSON.stringify({ error: error.message })
+  try {
+    const result = await new Promise((resolve, reject) => {
+      const req = https.request(options, res => {
+        let data = '';
+        res.on('data', chunk => data += chunk);
+        res.on('end', () => {
+          resolve({
+            statusCode: 200,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              success: true,
+              status: res.statusCode,
+              response: data
+            })
+          });
+        });
       });
+
+      req.on('error', error => {
+        reject({
+          statusCode: 500,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ error: error.message })
+        });
+      });
+
+      req.write(payload);
+      req.end();
     });
 
-    req.write(payload);
-    req.end();
-  });
-
-  return result;
+    return result;
+  } catch (err) {
+    return err;
+  }
 };
