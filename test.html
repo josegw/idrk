@@ -16,7 +16,7 @@
   </style>
 </head>
 <body>
-  <h1>Enviar datos al mas</h1>
+  <h1>Enviar datos ala verga</h1>
   <button id="sendRequest">Enviar</button>
   <div id="response"></div>
 
@@ -29,9 +29,6 @@
 
       document.getElementById('response').textContent = 'Enviando datos:\n' + JSON.stringify(data, null, 2);
 
-      // Probamos con diferentes métodos para enviar la solicitud
-      // Usamos fetch() primero
-
       fetch('https://webhookbeam.com/webhook/josegaznares/ifykyk', {
         method: 'POST',
         headers: {
@@ -40,45 +37,15 @@
         body: JSON.stringify(data)
       })
       .then(response => {
-        return response.text(); // Ver la respuesta como texto
+        // Verificar si la respuesta es válida
+        return response.text(); // Obtener la respuesta completa como texto
       })
       .then(text => {
-        document.getElementById('response').textContent += '\n\nRespuesta usando fetch (no JSON):\n' + text;
+        // Aquí puedes ver toda la respuesta completa del webhook
+        document.getElementById('response').textContent += '\n\nRespuesta completa del Webhook:\n' + text;
       })
       .catch(error => {
-        document.getElementById('response').textContent += '\n\nError usando fetch:\n' + error;
-      });
-
-      // Probamos con XMLHttpRequest para verificar que no haya problema con CORS o el método
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', 'https://webhookbeam.com/webhook/josegaznares/ifykyk', true);
-      xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-          if (xhr.status === 200) {
-            document.getElementById('response').textContent += '\n\nRespuesta usando XMLHttpRequest (no JSON):\n' + xhr.responseText;
-          } else {
-            document.getElementById('response').textContent += '\n\nError usando XMLHttpRequest:\n' + xhr.statusText;
-          }
-        }
-      };
-      xhr.send(JSON.stringify(data));
-
-      // Intentar con un POST usando FormData (no es común, pero puede ayudar a detectar problemas)
-      const formData = new FormData();
-      formData.append('key', 'valor');
-      formData.append('otraClave', 'otroValor');
-
-      fetch('https://webhookbeam.com/webhook/josegaznares/ifykyk', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.text())
-      .then(text => {
-        document.getElementById('response').textContent += '\n\nRespuesta usando FormData (no JSON):\n' + text;
-      })
-      .catch(error => {
-        document.getElementById('response').textContent += '\n\nError usando FormData:\n' + error;
+        document.getElementById('response').textContent += '\n\nError:\n' + error;
       });
     });
   </script>
