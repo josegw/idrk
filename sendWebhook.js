@@ -1,16 +1,25 @@
-const https = require('https');
-
 exports.handler = async function (event) {
-  // Mensaje de depuración visible en el sitio
-  const debugMessage = {
-    mensaje: "Función ejecutada correctamente",
-    metodo: event.httpMethod,
-    bodyRecibido: event.body || "(sin body)"
-  };
+  // Verifica si el evento es un POST
+  if (event.httpMethod === 'POST') {
+    const body = JSON.parse(event.body); // Parsea el cuerpo de la solicitud
 
-  return {
-    statusCode: 200,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(debugMessage)
-  };
+    // Respuesta a enviar
+    const response = {
+      success: true,
+      mensaje: "Datos recibidos correctamente",
+      bodyRecibido: body
+    };
+
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(response)
+    };
+  } else {
+    // Si el método no es POST, retorna un error
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: "Método no permitido" })
+    };
+  }
 };
