@@ -2,59 +2,80 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Recolectar Datos</title>
+  <title>Protección con llave</title>
+  <style>
+    #notification {
+      display: none;
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #f0f0f0;
+      border: 1px solid #aaa;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      z-index: 999;
+    }
+  </style>
 </head>
 <body>
+  <h2>Introduce tu llave para acceder</h2>
+  <input type="text" id="keyInput" placeholder="Llave">
+  <button onclick="verifyKey()">Verificar</button>
+  <p id="result"></p>
+
+  <br><br>
+  <button onclick="getKey()">Conseguir llave</button>
+
+  <div id="notification">
+    <p>¡Llave generada!</p>
+    <input type="text" id="generatedKey" readonly>
+    <button onclick="copyKey()">Copiar llave</button>
+    <button onclick="closeNotification()">Cerrar</button>
+  </div>
+
   <script>
-    async function detectarDispositivo(userAgent) {
-      if (/mobile/i.test(userAgent)) return "Móvil";
-      if (/tablet/i.test(userAgent)) return "Tablet";
-      if (/iPad|Android(?!.*Mobile)/i.test(userAgent)) return "Tablet";
-      if (/Macintosh/i.test(userAgent) && 'ontouchend' in document) return "iPad (modo escritorio)";
-      return "PC / Laptop";
+    const validKey = "XYZ123"; // Aquí está la llave válida
+
+    // Si hay un ?key en la URL, mostrar la notificación
+    const urlParams = new URLSearchParams(window.location.search);
+    const newKey = urlParams.get('key');
+    if (newKey) {
+      document.getElementById("notification").style.display = "block";
+      document.getElementById("generatedKey").value = newKey;
     }
 
-    async function recolectarYEnviar() {
-      const userAgent = navigator.userAgent;
-      const idioma = navigator.language;
-      const zonaHoraria = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const resolucionPantalla = `${screen.width}x${screen.height}`;
-      const fechaHora = new Date().toString();
-      const dispositivo = await detectarDispositivo(userAgent);
-
-      // Obtener IP pública y geolocalización
-      const respuestaIP = await fetch("https://ipapi.co/json/");
-      const datosIP = await respuestaIP.json();
-
-      const payload = {
-        user_agent: userAgent,
-        idioma: idioma,
-        zona_horaria: zonaHoraria,
-        resolucion_pantalla: resolucionPantalla,
-        fecha_hora: fechaHora,
-        dispositivo_estimado: dispositivo,
-        ip_publica: datosIP.ip,
-        ciudad: datosIP.city,
-        region: datosIP.region,
-        pais: datosIP.country_name,
-        organizacion: datosIP.org,
-        proveedor_internet: datosIP.org,
-        latitud: datosIP.latitude,
-        longitud: datosIP.longitude
-      };
-
-      // Enviar al webhook
-      fetch("https://webhookbeam.com/webhook/josegaznares/ifykyk", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
+    function verifyKey() {
+      const input = document.getElementById("keyInput").value.trim();
+      const result = document.getElementById("result");
+      if (input === validKey) {
+        result.textContent = "Llave válida. Redirigiendo...";
+        setTimeout(() => {
+          window.location.href = "contenido.html"; // Página final
+        }, 1500);
+      } else {
+        result.textContent = "Llave inválida.";
+      }
     }
 
-    // Ejecutar al cargar la página
-    window.onload = recolectarYEnviar;
+    function getKey() {
+      // Aquí pones tu enlace de Linkvertise con redirección al volver
+      // Ejemplo: https://linkvertise.com/12345/tu-oferta?o=share
+      // Redirige a tu dominio con ?key=XYZ123 después de completar
+      window.location.href = "https://linkvertise.com/12345/tu-oferta?o=share&redirect=https://tusitio.com/index.html?key=XYZ123";
+    }
+
+    function copyKey() {
+      const copyText = document.getElementById("generatedKey");
+      copyText.select();
+      copyText.setSelectionRange(0, 99999); // Móvil
+      document.execCommand("copy");
+      alert("Llave copiada al portapapeles");
+    }
+
+    function closeNotification() {
+      document.getElementById("notification").style.display = "none";
+    }
   </script>
 </body>
 </html>
