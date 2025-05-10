@@ -1,3 +1,5 @@
+const https = require('https');
+
 exports.handler = async function (event) {
   if (event.httpMethod !== 'POST') {
     return {
@@ -6,24 +8,39 @@ exports.handler = async function (event) {
     };
   }
 
-  try {
-    const payload = JSON.parse(event.body);
+  const payload = event.body;
 
-    const response = await fetch('https://webhookbeam.com/webhook/josegaznares/ifykyk', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+  const options = {
+    hostname: 'webhookbeam.com',
+    path: '/webhook/josegaznares/ifykyk',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(payload)
+    }
+  };
+
+  // Promesa para manejar la solicitud HTTPS
+  const result = await new Promise((resolve, reject) => {
+    const req = https.request(options, res => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => resolve({
+        statusCode: 200,
+        body: JSON.stringify({ success: true, response: data })
+      }));
     });
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ success: true })
-    };
+    req.on('error', error => {
+      reject({
+        statusCode: 500,
+        body: JSON.stringify({ error: error.message })
+      });
+    });
 
-  } catch (error) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: error.message })
-    };
-  }
+    req.write(payload);
+    req.end();
+  });
+
+  return result;
 };
