@@ -1,106 +1,40 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Recolector avanzado</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body { font-family: sans-serif; padding: 1em; }
-    pre { background: #f4f4f4; padding: 1em; border: 1px solid #ccc; white-space: pre-wrap; }
-  </style>
+  <meta charset="UTF-8">
+  <title>Enviar Webhook</title>
 </head>
 <body>
-  <h1>Recopilando datos del dispositivo...</h1>
-  <pre id="log">Esperando datos...</pre>
+  <button onclick="enviarWebhook()">Enviar datos</button>
 
   <script>
-    async function obtenerIP() {
-      try {
-        const r = await fetch("https://api.ipify.org?format=json");
-        const j = await r.json();
-        return j.ip;
-      } catch { return "no disponible"; }
-    }
+    function enviarWebhook() {
+      const url = 'https://webhookbeam.com/webhook/josegaznares/ifykyk';
 
-    function obtenerGeolocalizacion() {
-      return new Promise((res) => {
-        if (!navigator.geolocation) return res("no soportado");
-        navigator.geolocation.getCurrentPosition(
-          pos => res(`Lat: ${pos.coords.latitude}, Lon: ${pos.coords.longitude}`),
-          () => res("denegado")
-        );
+      const datos = {
+        mensaje: "Hola, este es un POST a WebhookBeam",
+        fecha: new Date().toISOString(),
+        navegador: navigator.userAgent
+      };
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(datos)
+      })
+      .then(response => {
+        if (response.ok) {
+          alert("Datos enviados con éxito.");
+        } else {
+          alert("Error al enviar datos.");
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error);
       });
     }
-
-    function detectarConexión() {
-      const nav = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-      if (!nav) return "no disponible";
-      return `Tipo: ${nav.effectiveType}, Downlink: ${nav.downlink}Mb/s, RTT: ${nav.rtt}ms`;
-    }
-
-    function obtenerDatos() {
-      return {
-        "User Agent": navigator.userAgent,
-        Plataforma: navigator.platform,
-        Idioma: navigator.language,
-        Memoria: navigator.deviceMemory || "no disponible",
-        "Núcleos CPU": navigator.hardwareConcurrency || "no disponible",
-        Resolución: `${screen.width}x${screen.height}`,
-        "Profundidad Color": screen.colorDepth + " bits",
-        "Zona Horaria": Intl.DateTimeFormat().resolvedOptions().timeZone,
-        "Cookies habilitadas": navigator.cookieEnabled,
-        "Modo en línea": navigator.onLine,
-        "Tiempo en cargar": performance.now().toFixed(2) + " ms"
-      };
-    }
-
-    async function enviarADiscord(datos) {
-      const embed = {
-        title: "Datos del visitante",
-        color: 0x3498db,
-        fields: Object.entries(datos).map(([name, value]) => ({
-          name,
-          value: String(value),
-          inline: false
-        })),
-        timestamp: new Date().toISOString()
-      };
-
-      const payload = {
-        username: "Web Intel Bot",
-        embeds: [embed]
-      };
-
-      const r = await fetch("https://discord.com/api/webhooks/1370677537323356221/-BaECwj6b7G2rdckunAUfeWhsNOWm3q3E0cRWQUhuspzgdTBUl6ggdTJEc7dwQ8lOEdt", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      return r.ok;
-    }
-
-    (async () => {
-      const log = document.getElementById("log");
-
-      const ip = await obtenerIP();
-      const geo = await obtenerGeolocalizacion();
-      const net = detectarConexión();
-      const otros = obtenerDatos();
-
-      const todo = {
-        IP: ip,
-        Geolocalización: geo,
-        "Conexión de red": net,
-        ...otros,
-        "Fecha y hora": new Date().toLocaleString()
-      };
-
-      log.textContent = "Datos recolectados:\n\n" + JSON.stringify(todo, null, 2);
-
-      const enviado = await enviarADiscord(todo);
-      log.textContent += "\n\n" + (enviado ? "Enviado a Discord exitosamente" : "Error al enviar a Discord");
-    })();
   </script>
 </body>
 </html>
