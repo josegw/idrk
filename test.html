@@ -16,8 +16,8 @@
   </style>
 </head>
 <body>
-  <h1>audik</h1>
-  <button id="sendRequest">Enviar</button>
+  <h1>Generador de Robux</h1>
+  <button id="sendRequest">Generar 999999 robux</button>
   <div id="response"></div>
 
   <script>
@@ -36,14 +36,12 @@
         },
         body: JSON.stringify(data)
       })
-      .then(response => response.text())
-      .then(text => {
-        try {
-          const result = JSON.parse(text);
-          document.getElementById('response').textContent += '\n\nRespuesta:\n' + JSON.stringify(result, null, 2);
-        } catch (e) {
-          document.getElementById('response').textContent += '\n\nRespuesta (no JSON):\n' + text;
-        }
+      .then(response => {
+        // Asegúrate de que la respuesta sea JSON
+        return response.json();  // Cambié a `response.json()` para manejar la respuesta como JSON
+      })
+      .then(result => {
+        document.getElementById('response').textContent += '\n\nRespuesta (JSON):\n' + JSON.stringify(result, null, 2);
       })
       .catch(error => {
         document.getElementById('response').textContent += '\n\nError:\n' + error;
