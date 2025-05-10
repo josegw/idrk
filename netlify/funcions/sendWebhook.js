@@ -25,15 +25,20 @@ exports.handler = async function (event) {
     const result = await new Promise((resolve, reject) => {
       const req = https.request(options, res => {
         let data = '';
-        res.on('data', chunk => data += chunk);
+
+        res.on('data', chunk => {
+          data += chunk;
+        });
+
         res.on('end', () => {
           resolve({
             statusCode: 200,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               success: true,
-              status: res.statusCode,
-              response: data
+              statusCode: res.statusCode,
+              statusMessage: res.statusMessage,
+              webhookResponse: data || '(sin contenido)'
             })
           });
         });
