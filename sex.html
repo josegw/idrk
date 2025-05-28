@@ -49,12 +49,12 @@
 <!-- NUEVO SCRIPT PARA DETECCIÓN Y WEBHOOK -->
 <script>
 (function() {
-  const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
-  const fromTag = path.toLowerCase() === "nfc";
+  const params = new URLSearchParams(window.location.search);
+  const fromTag = params.has("nfc");
   const webhookUrl = "https://webhookbeam.com/webhook/haxet78746/yk";
 
   const data = {
-    mensaje: fromTag ? "🎁 Acceso detectado desde el tag NFC." : "⚠️ Acceso detectado sin identificador (no NFC).",
+    mensaje: fromTag ? "🎁 Acceso detectado desde el tag NFC (vía ?nfc)." : "⚠️ Acceso detectado sin identificador (no NFC).",
     url: window.location.href,
     userAgent: navigator.userAgent
   };
