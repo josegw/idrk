@@ -75,6 +75,7 @@
       color: #aaa;
       margin-top: 10px;
       animation: blink 1s step-start infinite;
+      cursor: pointer;
     }
 
     @keyframes blink {
@@ -87,7 +88,6 @@
   <div class="chat-container" id="chatContainer"></div>
 
   <script>
-    // Refrescar página al volver atrás
     window.addEventListener("pageshow", function (event) {
       if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
         location.reload();
@@ -142,7 +142,7 @@
         terminal.appendChild(p);
 
         btn.addEventListener("click", () => {
-          btn.disabled = true; // evita múltiples clics
+          btn.disabled = true;
           callback(select.value);
         });
       }
@@ -152,37 +152,52 @@
         window.location.href = url;
       }
 
-      function mostrarChatMensajes(mensajes, callbackFinal) {
-        chatContainer.innerHTML = ''; // Limpia y muestra
+      function mostrarChatMensajesSecuenciales(mensajes) {
+        let index = 0;
+        chatContainer.innerHTML = '';
         chatContainer.style.display = "block";
 
-        mensajes.forEach((msg, i) => {
+        function mostrarSiguienteMensaje() {
+          const msg = mensajes[index];
+
           const line = document.createElement("div");
           line.className = "chat-message";
-          if (msg.color === "yellow") line.classList.add("yellow");
-          line.innerHTML = `<span>&lt;tilin&gt;</span> ${msg.text}`;
-          if (msg.system) line.innerHTML = `<span class="yellow">${msg.text}</span>`;
-          chatContainer.appendChild(line);
-        });
-
-        const continuar = document.createElement("div");
-        continuar.className = "click-continue";
-        continuar.textContent = "> Click para continuar";
-        chatContainer.appendChild(continuar);
-
-        chatContainer.onclick = () => {
-          if (callbackFinal) {
-            chatContainer.onclick = null; // evita múltiples clics
-            continuar.remove();
-            const msgFinal = document.createElement("div");
-            msgFinal.className = "chat-message";
-            msgFinal.innerHTML = "&lt;tilin&gt; Se que no he sido el mejornpero te amo con todo mi corazonzini";
-            chatContainer.appendChild(msgFinal);
-            scrollToBottom();
+          if (msg.system) {
+            line.innerHTML = `<span class="yellow">${msg.text}</span>`;
+          } else {
+            line.innerHTML = `&lt;tilin&gt; ${msg.text}`;
           }
-        };
+          chatContainer.appendChild(line);
+          scrollToBottom();
 
-        scrollToBottom();
+          index++;
+
+          if (index < mensajes.length) {
+            const continuar = document.createElement("div");
+            continuar.className = "click-continue";
+            continuar.textContent = "> Click para continuar";
+            chatContainer.appendChild(continuar);
+
+            const clickHandler = () => {
+              continuar.remove();
+              chatContainer.removeEventListener("click", clickHandler);
+              setTimeout(mostrarSiguienteMensaje, 100);
+            };
+
+            chatContainer.addEventListener("click", clickHandler);
+          }
+        }
+
+        // Mostrar "joined the game" primero
+        const joined = document.createElement("div");
+        joined.className = "chat-message yellow";
+        joined.textContent = "tilin joined the game";
+        chatContainer.appendChild(joined);
+
+        // Esperar 1 segundo y empezar la secuencia
+        setTimeout(() => {
+          mostrarSiguienteMensaje();
+        }, 1000);
       }
 
       // Flujo principal
@@ -212,11 +227,24 @@
                   texto.textContent = `Yo mash 💖. Espera ${segundos} segundos`;
                   if (segundos <= 0) {
                     clearInterval(intervalo);
-                    // Mostrar chat tipo Minecraft
-                    mostrarChatMensajes([
-                      { system: true, text: "tilin joined the game", color: "yellow" },
-                      { text: "Te amo mucho, muchas gracias por pasar este año y 6 meses a mi lado" }
-                    ], true);
+                    mostrarChatMensajesSecuenciales([
+                      {
+                        text: "Felices 1 año y 6 meses d ser tilines, no te quise hacer una cartita por que te quise hacer algo mas creativo y aqui estoy.",
+                        system: false
+                      },
+                      {
+                        text: "Tamo con todo mi corazoncito d pollo, perdoname por no ser em mejor y ser el tilin mas molesto que pudiste haber tenido, intento mejorar cada dia para ser de tu agrado.",
+                        system: false
+                      },
+                      {
+                        text: "Buenio, como te dije antes te amo mucho, porfi pelame, te amo mushino, y si t gusto o algo o m amas, dime cualquier cosita en waza. Anioshiniii.",
+                        system: false
+                      },
+                      {
+                        text: "tilin left the game",
+                        system: true
+                      }
+                    ]);
                   }
                 }, 1000);
               } else {
