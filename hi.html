@@ -4,10 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Preguntas</title>
+  <link rel="stylesheet" href="Minecraftia.ttf">
   <style>
     @font-face {
       font-family: 'Minecraftia';
-      src: url('Minecraftia-Regular.ttf') format('truetype');
+      src: url('Minecraftia.ttf') format('truetype');
     }
 
     body {
@@ -41,61 +42,53 @@
       margin-left: 10px;
     }
 
-    #minecraft-container {
-      position: absolute;
+    #chatContainer {
+      position: fixed;
       bottom: 0;
       left: 0;
       width: 100%;
-      max-height: 50%;
       background: rgba(0, 0, 0, 0.6);
-      font-family: 'Minecraftia', monospace;
-      font-size: 16px;
-      color: white;
+      font-family: 'Minecraftia', sans-serif;
+      font-size: 14px;
       padding: 10px;
+      color: white;
       display: none;
-      opacity: 0;
-      animation: fadeIn 1s forwards;
+      animation: fadein 1s ease forwards;
     }
 
     .chat-line {
-      margin: 2px 0;
+      margin: 3px 0;
+      word-break: break-word;
     }
 
-    .chat-user {
-      color: #55ffff;
-    }
-
-    .join-message {
+    .chat-yellow {
       color: #ffff55;
     }
 
-    .click-continuar {
-      color: #888;
-      animation: blink 1s steps(2) infinite;
-      cursor: pointer;
+    .click-to-continue {
+      color: #ccc;
+      animation: blink 1s steps(2, start) infinite;
       margin-top: 5px;
-    }
-
-    @keyframes fadeIn {
-      to { opacity: 1; }
     }
 
     @keyframes blink {
       0%, 100% { opacity: 1; }
       50% { opacity: 0; }
     }
+
+    @keyframes fadein {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
   </style>
 </head>
 <body>
   <div id="terminal"></div>
-  <div id="minecraft-container">
-    <div id="minecraft-chat"></div>
-  </div>
+  <div id="chatContainer"></div>
 
   <script>
     const terminal = document.getElementById("terminal");
-    const chatContainer = document.getElementById("minecraft-container");
-    const chat = document.getElementById("minecraft-chat");
+    const chatContainer = document.getElementById("chatContainer");
 
     function addLine(text, isPrompt = true) {
       const p = document.createElement("p");
@@ -124,7 +117,7 @@
       p.appendChild(label);
 
       const select = document.createElement("select");
-      select.innerHTML = `<option value="si">Sí</option><option value="no">No</option>`;
+      select.innerHTML = '<option value="si">Sí</option><option value="no">No</option>';
       p.appendChild(select);
 
       const btn = document.createElement("button");
@@ -132,62 +125,66 @@
       p.appendChild(btn);
 
       terminal.appendChild(p);
-      terminal.scrollTop = terminal.scrollHeight;
 
-      btn.addEventListener("click", () => callback(select.value));
+      btn.addEventListener("click", () => {
+        if (btn.disabled) return;
+        btn.disabled = true;
+        select.disabled = true;
+        callback(select.value);
+      });
+
+      terminal.scrollTop = terminal.scrollHeight;
     }
 
     function limpiarYRedirigir(url) {
       history.replaceState(null, "", location.pathname);
+      sessionStorage.setItem("redirigido", "true");
       window.location.href = url;
     }
 
-    function iniciarChatMinecraft() {
+    function iniciarChatFinal() {
       chatContainer.style.display = "block";
+      chatContainer.innerHTML = `
+        <div class="chat-line chat-yellow">tilin joined the game</div>
+        <div class="chat-line">tilin: Te amo mucho, muchas gracias por pasar este año y 6 meses a mi lado</div>
+        <div class="chat-line click-to-continue">> Click para continuar</div>
+      `;
 
-      const joinMsg = document.createElement("div");
-      joinMsg.className = "chat-line join-message";
-      joinMsg.textContent = "tilin joined the game";
-      chat.appendChild(joinMsg);
+      const continuar = () => {
+        chatContainer.innerHTML += `
+          <div class="chat-line">tilin: Se que no he sido el mejornpero te amo con todo mi corazonzini</div>
+        `;
+        chatContainer.removeEventListener("click", continuar);
+        const continuarTexto = chatContainer.querySelector(".click-to-continue");
+        if (continuarTexto) continuarTexto.remove();
+      };
 
-      let segundos = 3;
-      const mensajeBase = "Yo mash 💖. Espera ";
-      const countdown = document.createElement("div");
-      countdown.className = "chat-line";
-      countdown.innerHTML = `<span class="chat-user">tilin</span> ${mensajeBase}${segundos} segundos`;
-      chat.appendChild(countdown);
+      chatContainer.addEventListener("click", continuar);
+    }
+
+    function iniciarCuentaRegresiva(segundos, callback) {
+      let s = segundos;
+      const linea = document.createElement("p");
+      const prompt = document.createElement("span");
+      prompt.className = "prompt";
+      prompt.textContent = "chuki@chukisite:~$ ";
+      linea.appendChild(prompt);
+
+      const span = document.createElement("span");
+      linea.appendChild(span);
+      terminal.appendChild(linea);
 
       const intervalo = setInterval(() => {
-        segundos--;
-        if (segundos > 0) {
-          countdown.innerHTML = `<span class="chat-user">tilin</span> ${mensajeBase}${segundos} segundos`;
-        } else {
+        span.textContent = `Yo mash 💖. Espera ${s} segundos`;
+        s--;
+        if (s < 0) {
           clearInterval(intervalo);
-          mostrarMensajeChat("Te amo mucho, muchas gracias por pasar este año y 6 meses a mi lado", () => {
-            const continuar = document.createElement("div");
-            continuar.className = "click-continuar";
-            continuar.textContent = "> Click para continuar";
-            chat.appendChild(continuar);
-
-            chatContainer.addEventListener("click", () => {
-              continuar.remove();
-              mostrarMensajeChat("Se que no he sido el mejornpero te amo con todo mi corazonzini");
-            }, { once: true });
-          });
+          callback();
         }
       }, 1000);
     }
 
-    function mostrarMensajeChat(texto, callback) {
-      const msg = document.createElement("div");
-      msg.className = "chat-line";
-      msg.innerHTML = `<span class="chat-user">tilin</span> ${texto}`;
-      chat.appendChild(msg);
-      if (callback) callback();
-    }
-
-    // Manejo principal
-    document.addEventListener("DOMContentLoaded", () => {
+    function iniciarFlujo() {
       addSelectPrompt("¿Quieres continuar? ", (respuesta1) => {
         if (respuesta1 === "no") {
           addLine("Okei 😔");
@@ -197,7 +194,7 @@
           setTimeout(() => {
             addSelectPrompt("¿Me amas? ", (respuesta2) => {
               if (respuesta2 === "si") {
-                iniciarChatMinecraft();
+                iniciarCuentaRegresiva(3, iniciarChatFinal);
               } else {
                 addLine("Okei 😔");
                 setTimeout(() => limpiarYRedirigir("https://www.google.com"), 2000);
@@ -206,12 +203,24 @@
           }, 1000);
         }
       });
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      if (sessionStorage.getItem("redirigido")) {
+        sessionStorage.removeItem("redirigido");
+        window.location.reload();
+      } else {
+        iniciarFlujo();
+      }
     });
 
-    // Recargar si se vuelve atrás
-    window.addEventListener('pageshow', function (event) {
-      if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
-        window.location.reload();
+    window.addEventListener("pageshow", function (event) {
+      if (event.persisted || performance.getEntriesByType("navigation")[0].type === "back_forward") {
+        if (!sessionStorage.getItem("alreadyVisited")) {
+          sessionStorage.setItem("alreadyVisited", "true");
+        } else {
+          window.location.reload();
+        }
       }
     });
   </script>
