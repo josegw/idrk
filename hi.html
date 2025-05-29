@@ -3,34 +3,41 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Página Especial</title>
+  <title>Preguntas</title>
   <style>
-    @font-face {
-      font-family: 'Minecraftia';
-      src: url('Minecraftia.woff') format('woff');
-    }
-
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
       background-color: #000;
       color: #ccc;
       font-family: Consolas, "Liberation Mono", Courier, monospace;
-      font-size: 1.2em;
-      margin: 0;
-      padding: 0;
-      height: auto;
-      min-height: 100vh;
+      font-size: 1.1em;
       user-select: none;
-      overflow-x: hidden;
-      overflow-y: auto;
+      height: 100%;
+      overflow: hidden;
     }
 
     #terminal {
       padding: 10px;
-      box-sizing: border-box;
+      overflow-y: auto;
+      max-height: 60vh;
     }
 
     .prompt {
       color: #8aff80;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 0.6ch;
+      background-color: currentColor;
+      animation: blink 1s steps(2) infinite;
+      vertical-align: bottom;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
     }
 
     select, button {
@@ -41,240 +48,232 @@
       margin-left: 10px;
     }
 
-    .chat-container {
-      position: fixed;
+    #chat {
+      position: absolute;
       bottom: 0;
       left: 0;
       width: 100%;
-      max-height: 50%;
-      overflow-y: auto;
-      background: rgba(0, 0, 0, 0.6);
+      max-height: 40vh;
+      background: rgba(0, 0, 0, 0.7);
       color: white;
-      font-family: 'Minecraftia', monospace;
+      font-family: 'Minecraftia', sans-serif;
       font-size: 14px;
+      line-height: 1.4;
       padding: 10px;
       display: none;
-      animation: fadeIn 1s ease-in-out forwards;
-    }
-
-    .chat-message {
-      margin: 3px 0;
-      word-break: break-word;
-    }
-
-    .yellow {
-      color: #ffff55;
+      overflow-y: auto;
+      animation: fadeIn 1s ease forwards;
     }
 
     @keyframes fadeIn {
       from { opacity: 0; }
-      to   { opacity: 1; }
+      to { opacity: 1; }
+    }
+
+    .chat-message {
+      margin-bottom: 5px;
+    }
+
+    .yellow {
+      color: #fef535;
     }
 
     .click-continue {
-      color: #aaa;
-      margin-top: 10px;
-      animation: blink 1s step-start infinite;
+      color: #ccc;
+      opacity: 0.8;
+      animation: blink 1s steps(2, start) infinite;
       cursor: pointer;
     }
 
-    @keyframes blink {
-      50% { opacity: 0; }
+    @font-face {
+      font-family: 'Minecraftia';
+      src: url('Minecraftia.woff') format('woff');
     }
   </style>
 </head>
 <body>
-  <div id="terminal"></div>
-  <div class="chat-container" id="chatContainer"></div>
 
-  <script>
-    window.addEventListener("pageshow", function (event) {
-      if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
-        location.reload();
-      }
+<div id="terminal"></div>
+<div id="chat"></div>
+
+<script>
+  // Recargar al volver con botón atrás
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) window.location.reload();
+  });
+
+  const terminal = document.getElementById("terminal");
+  const chatContainer = document.getElementById("chat");
+
+  function scrollToBottom() {
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    terminal.scrollTop = terminal.scrollHeight;
+  }
+
+  function addLine(text, isPrompt = true) {
+    const p = document.createElement("p");
+    if (isPrompt) {
+      const prompt = document.createElement("span");
+      prompt.className = "prompt";
+      prompt.textContent = "chuki@chukisite:~$ ";
+      p.appendChild(prompt);
+    }
+    const span = document.createElement("span");
+    span.textContent = text;
+    p.appendChild(span);
+    terminal.appendChild(p);
+    scrollToBottom();
+  }
+
+  function addSelectPrompt(question, callback) {
+    const p = document.createElement("p");
+    const prompt = document.createElement("span");
+    prompt.className = "prompt";
+    prompt.textContent = "chuki@chukisite:~$ ";
+    p.appendChild(prompt);
+
+    const label = document.createElement("span");
+    label.textContent = question;
+    p.appendChild(label);
+
+    const select = document.createElement("select");
+    const option1 = new Option("Sí", "si");
+    const option2 = new Option("No", "no");
+    select.add(option1);
+    select.add(option2);
+    p.appendChild(select);
+
+    const btn = document.createElement("button");
+    btn.textContent = "Confirmar";
+    p.appendChild(btn);
+
+    terminal.appendChild(p);
+    scrollToBottom();
+
+    btn.addEventListener("click", () => {
+      btn.disabled = true;
+      callback(select.value);
     });
+  }
 
-    document.addEventListener("DOMContentLoaded", function() {
-      const terminal = document.getElementById("terminal");
-      const chatContainer = document.getElementById("chatContainer");
+  function limpiarYRedirigir(url) {
+    history.replaceState(null, "", location.pathname);
+    window.location.href = url;
+  }
 
-      function addLine(text, isPrompt = true) {
-        const p = document.createElement("p");
-        if (isPrompt) {
-          const prompt = document.createElement("span");
-          prompt.className = "prompt";
-          prompt.textContent = "chuki@chukisite:~$ ";
-          p.appendChild(prompt);
-        }
-        const span = document.createElement("span");
-        span.textContent = text;
-        p.appendChild(span);
-        terminal.appendChild(p);
-        scrollToBottom();
+  function mostrarChatMensajesSecuenciales(mensajes) {
+    let index = 0;
+    chatContainer.innerHTML = '';
+    chatContainer.style.display = "block";
+
+    function mostrarSiguienteMensaje() {
+      const msg = mensajes[index];
+
+      const line = document.createElement("div");
+      line.className = "chat-message";
+      if (msg.system) {
+        line.innerHTML = `<span class="yellow">${msg.text}</span>`;
+      } else {
+        line.innerHTML = `&lt;tilin&gt; ${msg.text}`;
       }
+      chatContainer.appendChild(line);
+      scrollToBottom();
 
-      function scrollToBottom() {
-        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+      index++;
+
+      if (index < mensajes.length - 1) {
+        const continuar = document.createElement("div");
+        continuar.className = "click-continue";
+        continuar.textContent = "> Click para continuar";
+        chatContainer.appendChild(continuar);
+
+        const clickHandler = () => {
+          continuar.remove();
+          chatContainer.removeEventListener("click", clickHandler);
+          setTimeout(mostrarSiguienteMensaje, 100);
+        };
+
+        chatContainer.addEventListener("click", clickHandler);
+      } else if (index === mensajes.length - 1) {
+        const continuar = document.createElement("div");
+        continuar.className = "click-continue";
+        continuar.textContent = "> Click para continuar";
+        chatContainer.appendChild(continuar);
+
+        const clickHandler = () => {
+          continuar.remove();
+          chatContainer.removeEventListener("click", clickHandler);
+          setTimeout(() => {
+            const finalMsg = document.createElement("div");
+            finalMsg.className = "chat-message yellow";
+            finalMsg.textContent = mensajes[mensajes.length - 1].text;
+            chatContainer.appendChild(finalMsg);
+            scrollToBottom();
+          }, 1000);
+        };
+
+        chatContainer.addEventListener("click", clickHandler);
       }
+    }
 
-      function addSelectPrompt(question, callback) {
-        const p = document.createElement("p");
-        const prompt = document.createElement("span");
-        prompt.className = "prompt";
-        prompt.textContent = "chuki@chukisite:~$ ";
-        p.appendChild(prompt);
+    const joined = document.createElement("div");
+    joined.className = "chat-message yellow";
+    joined.textContent = "tilin joined the game";
+    chatContainer.appendChild(joined);
+    scrollToBottom();
 
-        const label = document.createElement("span");
-        label.textContent = question;
-        p.appendChild(label);
+    setTimeout(() => {
+      mostrarSiguienteMensaje();
+    }, 1000);
+  }
 
-        const select = document.createElement("select");
-        const option1 = new Option("Sí", "si");
-        const option2 = new Option("No", "no");
-        select.add(option1);
-        select.add(option2);
-        p.appendChild(select);
-
-        const btn = document.createElement("button");
-        btn.textContent = "Confirmar";
-        p.appendChild(btn);
-
-        terminal.appendChild(p);
-
-        btn.addEventListener("click", () => {
-          btn.disabled = true;
-          callback(select.value);
-        });
-      }
-
-      function limpiarYRedirigir(url) {
-        history.replaceState(null, "", location.pathname);
-        window.location.href = url;
-      }
-
-      function mostrarChatMensajesSecuenciales(mensajes) {
-        let index = 0;
-        chatContainer.innerHTML = '';
-        chatContainer.style.display = "block";
-
-        function mostrarSiguienteMensaje() {
-          const msg = mensajes[index];
-
-          const line = document.createElement("div");
-          line.className = "chat-message";
-          if (msg.system) {
-            line.innerHTML = `<span class="yellow">${msg.text}</span>`;
-          } else {
-            line.innerHTML = `&lt;tilin&gt; ${msg.text}`;
-          }
-          chatContainer.appendChild(line);
-          scrollToBottom();
-
-          index++;
-
-          if (index < mensajes.length - 1) {
-            const continuar = document.createElement("div");
-            continuar.className = "click-continue";
-            continuar.textContent = "> Click para continuar";
-            chatContainer.appendChild(continuar);
-
-            const clickHandler = () => {
-              continuar.remove();
-              chatContainer.removeEventListener("click", clickHandler);
-              setTimeout(mostrarSiguienteMensaje, 100);
-            };
-
-            chatContainer.addEventListener("click", clickHandler);
-          } else if (index === mensajes.length - 1) {
-            const continuar = document.createElement("div");
-            continuar.className = "click-continue";
-            continuar.textContent = "> Click para continuar";
-            chatContainer.appendChild(continuar);
-
-            const clickHandler = () => {
-              continuar.remove();
-              chatContainer.removeEventListener("click", clickHandler);
-              setTimeout(() => {
-                const finalMsg = document.createElement("div");
-                finalMsg.className = "chat-message yellow";
-                finalMsg.textContent = mensajes[mensajes.length - 1].text;
-                chatContainer.appendChild(finalMsg);
-                scrollToBottom();
-              }, 1000);
-            };
-
-            chatContainer.addEventListener("click", clickHandler);
-          }
-        }
-
-        // Mostrar "joined the game" primero
-        const joined = document.createElement("div");
-        joined.className = "chat-message yellow";
-        joined.textContent = "tilin joined the game";
-        chatContainer.appendChild(joined);
-
-        // Esperar 1 segundo y empezar la secuencia
+  document.addEventListener("DOMContentLoaded", function() {
+    addSelectPrompt("¿Quieres continuar? ", (respuesta1) => {
+      if (respuesta1 === "no") {
+        addLine("Okei 😔");
+        setTimeout(() => limpiarYRedirigir("https://www.google.com"), 3000);
+      } else {
+        addLine("Buena elección...");
         setTimeout(() => {
-          mostrarSiguienteMensaje();
+          addSelectPrompt("¿Me amas? ", (respuesta2) => {
+            if (respuesta2 === "si") {
+              let segundos = 3;
+              const texto = document.createElement("p");
+              const prompt = document.createElement("span");
+              prompt.className = "prompt";
+              prompt.textContent = "chuki@chukisite:~$ ";
+              texto.appendChild(prompt);
+
+              const span = document.createElement("span");
+              span.textContent = `Yo mash 💖. Espera ${segundos} segundos`;
+              texto.appendChild(span);
+              terminal.appendChild(texto);
+              scrollToBottom();
+
+              const interval = setInterval(() => {
+                segundos--;
+                span.textContent = `Yo mash 💖. Espera ${segundos} segundos`;
+                if (segundos === 0) {
+                  clearInterval(interval);
+                  mostrarChatMensajesSecuenciales([
+                    { system: true, text: "tilin joined the game" },
+                    { text: "Felices 1 año y 6 meses d ser tilines, no te quise hacer una cartita por que te quise hacer algo mas creativo y aqui estoy." },
+                    { text: "Tamo con todo mi corazoncito d pollo, perdoname por no ser em mejor y ser el tilin mas molesto que pudiste haber tenido, intento mejorar cada dia para ser de tu agrado." },
+                    { text: "Buenio, como te dije antes te amo mucho, porfi pelame, te amo mushino, y si t gusto o algo o m amas, dime cualquier cosita en waza. Anioshiniii." },
+                    { system: true, text: "tilin left the game" }
+                  ]);
+                }
+              }, 1000);
+            } else {
+              addLine("Okei 😔");
+              setTimeout(() => limpiarYRedirigir("https://www.google.com"), 3000);
+            }
+          });
         }, 1000);
       }
-
-      // Flujo principal
-      addSelectPrompt("¿Quieres continuar? ", (respuesta1) => {
-        if (respuesta1 === "no") {
-          addLine("Okei 😔");
-          setTimeout(() => limpiarYRedirigir("https://www.google.com"), 2000);
-        } else {
-          addLine("Buena elección...");
-          setTimeout(() => {
-            addSelectPrompt("¿Me amas? ", (respuesta2) => {
-              if (respuesta2 === "si") {
-                let segundos = 3;
-                const textoContador = document.createElement("p");
-                const prompt = document.createElement("span");
-                prompt.className = "prompt";
-                prompt.textContent = "chuki@chukisite:~$ ";
-                textoContador.appendChild(prompt);
-
-                const texto = document.createElement("span");
-                texto.textContent = `Yo mash 💖. Espera ${segundos} segundos`;
-                textoContador.appendChild(texto);
-                terminal.appendChild(textoContador);
-
-                const intervalo = setInterval(() => {
-                  segundos--;
-                  texto.textContent = `Yo mash 💖. Espera ${segundos} segundos`;
-                  if (segundos <= 0) {
-                    clearInterval(intervalo);
-                    mostrarChatMensajesSecuenciales([
-                      {
-                        text: "Felices 1 año y 6 meses d ser tilines, no te quise hacer una cartita por que te quise hacer algo mas creativo y aqui estoy.",
-                        system: false
-                      },
-                      {
-                        text: "Tamo con todo mi corazoncito d pollo, perdoname por no ser em mejor y ser el tilin mas molesto que pudiste haber tenido, intento mejorar cada dia para ser de tu agrado.",
-                        system: false
-                      },
-                      {
-                        text: "Buenio, como te dije antes te amo mucho, porfi pelame, te amo mushino, y si t gusto o algo o m amas, dime cualquier cosita en waza. Anioshiniii.",
-                        system: false
-                      },
-                      {
-                        text: "tilin left the game",
-                        system: true
-                      }
-                    ]);
-                  }
-                }, 1000);
-              } else {
-                addLine("Okei 😔");
-                setTimeout(() => limpiarYRedirigir("https://www.google.com"), 2000);
-              }
-            });
-          }, 1000);
-        }
-      });
     });
-  </script>
+  });
+</script>
+
 </body>
 </html>
