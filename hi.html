@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Preguntas</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #ccc;
+      font-family: Consolas, "Liberation Mono", Courier, monospace;
+      font-size: 1.2em;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      user-select: none;
+    }
+    #terminal {
+      padding: 10px;
+    }
+    .prompt {
+      color: #8aff80;
+    }
+    .cursor {
+      display: inline-block;
+      width: 0.6ch;
+      background-color: currentColor;
+      animation: blink 1s steps(2) infinite;
+      vertical-align: bottom;
+    }
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    select, button {
+      background-color: #111;
+      color: #ccc;
+      font: inherit;
+      border: 1px solid #333;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="terminal"></div>
+
+  <script>
+    // Recarga si el usuario vuelve con la flecha de retroceso
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted || performance.getEntriesByType("navigation")[0].type === "back_forward") {
+        window.location.reload();
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+      const terminal = document.getElementById("terminal");
+
+      function addLine(text, isPrompt = true) {
+        const p = document.createElement("p");
+        if (isPrompt) {
+          const prompt = document.createElement("span");
+          prompt.className = "prompt";
+          prompt.textContent = "chuki@chukisite:~$ ";
+          p.appendChild(prompt);
+        }
+        const span = document.createElement("span");
+        span.textContent = text;
+        p.appendChild(span);
+        terminal.appendChild(p);
+      }
+
+      function addSelectPrompt(question, callback) {
+        const p = document.createElement("p");
+        const prompt = document.createElement("span");
+        prompt.className = "prompt";
+        prompt.textContent = "chuki@chukisite:~$ ";
+        p.appendChild(prompt);
+
+        const label = document.createElement("span");
+        label.textContent = question;
+        p.appendChild(label);
+
+        const select = document.createElement("select");
+        const option1 = new Option("Sí", "si");
+        const option2 = new Option("No", "no");
+        select.add(option1);
+        select.add(option2);
+        p.appendChild(select);
+
+        const btn = document.createElement("button");
+        btn.textContent = "Confirmar";
+        p.appendChild(btn);
+
+        terminal.appendChild(p);
+
+        btn.addEventListener("click", () => {
+          callback(select.value);
+        });
+      }
+
+      function redirigir(url) {
+        setTimeout(() => {
+          window.location.href = url;
+        }, 3000); // ← Cambiado a 3 segundos
+      }
+
+      // Iniciar flujo
+      addSelectPrompt("¿Quieres continuar? ", (respuesta1) => {
+        if (respuesta1 === "no") {
+          addLine("Okei 😔");
+          redirigir("https://www.google.com");
+        } else {
+          addLine("Buena elección...");
+          setTimeout(() => {
+            addSelectPrompt("¿Me amas? ", (respuesta2) => {
+              if (respuesta2 === "si") {
+                addLine("Yo mash 💖. Espera 3 segundos");
+
+                const countLine = document.createElement("p");
+                const prompt = document.createElement("span");
+                prompt.className = "prompt";
+                prompt.textContent = "chuki@chukisite:~$ ";
+                countLine.appendChild(prompt);
+
+                const countText = document.createElement("span");
+                countText.textContent = "3";
+                countLine.appendChild(countText);
+                terminal.appendChild(countLine);
+
+                let count = 3;
+                const interval = setInterval(() => {
+                  count--;
+                  if (count > 0) {
+                    countText.textContent = count;
+                  } else {
+                    clearInterval(interval);
+
+                    // Mostrar ventanita con texto tipo máquina de escribir
+                    const ventana = document.createElement("div");
+                    ventana.style.border = "1px solid #555";
+                    ventana.style.padding = "15px";
+                    ventana.style.marginTop = "20px";
+                    ventana.style.backgroundColor = "#111";
+                    ventana.style.position = "relative";
+                    terminal.appendChild(ventana);
+
+                    const texto = document.createElement("p");
+                    texto.style.whiteSpace = "pre-wrap";
+                    ventana.appendChild(texto);
+
+                    function escribir(textoElemento, mensaje, velocidad, callback) {
+                      let i = 0;
+                      const escribirChar = () => {
+                        if (i < mensaje.length) {
+                          textoElemento.textContent += mensaje.charAt(i);
+                          i++;
+                          setTimeout(escribirChar, velocidad);
+                        } else if (callback) {
+                          callback();
+                        }
+                      };
+                      escribirChar();
+                    }
+
+                    escribir(texto, "Te amo mucho, muchas gracias por pasar este año y 6 meses a mi lado", 50, () => {
+                      const continuar = document.createElement("p");
+                      continuar.textContent = "> Click para continuar";
+                      continuar.style.color = "#8aff80";
+                      continuar.style.cursor = "pointer";
+                      continuar.style.animation = "blink 1s steps(2) infinite";
+                      ventana.appendChild(continuar);
+
+                      continuar.addEventListener("click", () => {
+                        continuar.remove();
+                        texto.textContent = "";
+                        escribir(texto, "Se que no he sido el mejor pero te amo con todo mi corazonzini", 50);
+                      });
+                    });
+                  }
+                }, 1000);
+              } else {
+                addLine("Okei 😔");
+                redirigir("https://www.google.com");
+              }
+            });
+          }, 1000);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
