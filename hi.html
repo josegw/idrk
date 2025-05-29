@@ -92,29 +92,36 @@
         });
       }
 
+      // 🔐 Función que limpia historial y redirige
+      function limpiarYRedirigir(url) {
+        // Reemplaza el estado actual del historial
+        history.replaceState(null, "", location.pathname);
+        // Intenta cerrar la ventana si fue abierta con JS
+        window.close();
+        // Como fallback, redirige normalmente
+        window.location.href = url;
+      }
+
       // Flujo principal
-      addLine("Cargando preguntas...");
-      setTimeout(() => {
-        addSelectPrompt("¿Quieres continuar? ", (respuesta1) => {
-          if (respuesta1 === "no") {
-            addLine("Redirigiendo a Google...");
-            setTimeout(() => window.location.href = "https://www.google.com", 2000);
-          } else {
-            addLine("Buena elección...");
-            setTimeout(() => {
-              addSelectPrompt("¿Me amas? ", (respuesta2) => {
-                if (respuesta2 === "si") {
-                  addLine("Yo también te amo ❤️");
-                  setTimeout(() => window.location.href = "https://www.youtube.com", 2000);
-                } else {
-                  addLine("Eso dolió... 😢");
-                  setTimeout(() => window.location.href = "https://www.google.com", 2000);
-                }
-              });
-            }, 1000);
-          }
-        });
-      }, 800);
+      addSelectPrompt("¿Quieres continuar? ", (respuesta1) => {
+        if (respuesta1 === "no") {
+          addLine("Okei 😔");
+          setTimeout(() => limpiarYRedirigir("https://www.google.com"), 2000);
+        } else {
+          addLine("Buena elección...");
+          setTimeout(() => {
+            addSelectPrompt("¿Me amas? ", (respuesta2) => {
+              if (respuesta2 === "si") {
+                addLine("Yo también te amo ❤️");
+                setTimeout(() => limpiarYRedirigir("https://www.youtube.com"), 2000);
+              } else {
+                addLine("Okei 😔");
+                setTimeout(() => limpiarYRedirigir("https://www.google.com"), 2000);
+              }
+            });
+          }, 1000);
+        }
+      });
     });
   </script>
 </body>
