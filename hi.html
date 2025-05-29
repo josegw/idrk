@@ -92,14 +92,17 @@
         });
       }
 
-      // 🔐 Función que limpia historial y redirige
       function limpiarYRedirigir(url) {
-        // Reemplaza el estado actual del historial
+        // Limpia historial
         history.replaceState(null, "", location.pathname);
-        // Intenta cerrar la ventana si fue abierta con JS
+
+        // Intenta cerrar si fue abierto por JS
         window.close();
-        // Como fallback, redirige normalmente
-        window.location.href = url;
+
+        // Siempre redirige después de un pequeño delay
+        setTimeout(() => {
+          window.location.href = url;
+        }, 200);
       }
 
       // Flujo principal
