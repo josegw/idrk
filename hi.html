@@ -172,7 +172,7 @@
 
           index++;
 
-          if (index < mensajes.length) {
+          if (index < mensajes.length - 1) {
             const continuar = document.createElement("div");
             continuar.className = "click-continue";
             continuar.textContent = "> Click para continuar";
@@ -182,6 +182,25 @@
               continuar.remove();
               chatContainer.removeEventListener("click", clickHandler);
               setTimeout(mostrarSiguienteMensaje, 100);
+            };
+
+            chatContainer.addEventListener("click", clickHandler);
+          } else if (index === mensajes.length - 1) {
+            const continuar = document.createElement("div");
+            continuar.className = "click-continue";
+            continuar.textContent = "> Click para continuar";
+            chatContainer.appendChild(continuar);
+
+            const clickHandler = () => {
+              continuar.remove();
+              chatContainer.removeEventListener("click", clickHandler);
+              setTimeout(() => {
+                const finalMsg = document.createElement("div");
+                finalMsg.className = "chat-message yellow";
+                finalMsg.textContent = mensajes[mensajes.length - 1].text;
+                chatContainer.appendChild(finalMsg);
+                scrollToBottom();
+              }, 1000);
             };
 
             chatContainer.addEventListener("click", clickHandler);
