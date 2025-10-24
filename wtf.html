@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Pantalla de inicio</title>
+  <title>wtf am i doinnggg</title>
   <style>
     html,body {
       height: 100%;
@@ -17,68 +17,121 @@
     .fullscreen {
       height: 100vh;
       width: 100%;
-      display: grid;
-      place-items: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       position: relative;
-      cursor: pointer;
     }
 
+    /* Texto inicial */
     .prompt {
       color: #e6e6e6;
       font-size: 6vw;
+      text-align: center;
+      transition: opacity .4s ease, transform .4s ease;
       pointer-events: none;
-      transition: opacity 0.4s ease, transform 0.4s ease;
     }
-
     .prompt.hidden {
       opacity: 0;
       transform: scale(0.97);
     }
 
-    /* Imagen flotante oculta al inicio */
-    .floating-image {
-      position: absolute;
+    /* Contenedor de la interfaz después del clic */
+    #ui {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      transform: scale(0.97);
+      transition: opacity .6s ease, transform .6s ease;
+      pointer-events: none;
+    }
+    #ui.show {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+
+    /* Animación flotante */
+    @keyframes float {
+      0%   { transform: translate(-2px, 0px) scale(1); }
+      50%  { transform: translate(18px, -6px) scale(1.01); }
+      100% { transform: translate(-2px, 0px) scale(1); }
+    }
+
+    /* Imagen superior */
+    #img1 {
       width: 448px;
       height: 450px;
       object-fit: contain;
-      opacity: 0;
-      transform: scale(0.97);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-      animation: float 4.8s ease-in-out infinite;
-      pointer-events: none;
+      animation: float 4.5s ease-in-out infinite;
+      margin-bottom: 5px; /* un poco arriba */
     }
 
-    /* Al mostrarse */
-    .floating-image.show {
-      opacity: 1;
-      transform: scale(1);
+    /* Imagen inferior */
+    #img2 {
+      width: 577px;
+      height: 433px;
+      object-fit: contain;
+      animation: float 5.2s ease-in-out infinite;
+      margin-bottom: 15px;
     }
 
-    /* Animación suave horizontal */
-    @keyframes float {
-      0%   { transform: translateX(0) scale(1); }
-      50%  { transform: translateX(10px) scale(1.01); }
-      100% { transform: translateX(0) scale(1); }
+    /* Botones */
+    .btn-container {
+      display: flex;
+      gap: 25px;
+    }
+    .btn {
+      padding: 12px 30px;
+      font-size: 5vw;
+      border: none;
+      border-radius: 10px;
+      background: #222;
+      color: #eee;
+      cursor: pointer;
+      transition: transform .2s;
+    }
+    .btn:active {
+      transform: scale(0.95);
     }
 
+    /* Mobile tweaking */
+    @media (max-width:600px){
+      #img1 { width: 280px; height: auto; }
+      #img2 { width: 350px; height: auto; }
+      .btn { font-size: 6vw; }
+    }
   </style>
 </head>
 <body>
   <div id="app" class="fullscreen">
-    <div id="prompt" class="prompt">haz clic para empezar</div>
+    <!-- Texto inicial -->
+    <div id="prompt" class="prompt">click heree</div>
 
-    <!-- Imagen que aparecerá después del clic -->
-    <img id="floatImg" class="floating-image" src="imagen.png" alt="Imagen flotante">
+    <!-- UI que aparece luego del clic -->
+    <div id="ui">
+      <img id="img1" src="imagen.png" alt="">
+      <img id="img2" src="cartel.png" alt="">
 
+      <div class="btn-container">
+        <button class="btn" id="btnSi">Si</button>
+        <button class="btn" id="btnNo">No</button>
+      </div>
+    </div>
+
+    <!-- Audio -->
     <audio id="bg-audio" preload="auto" loop playsinline>
       <source src="audio.mp3" type="audio/mpeg"/>
     </audio>
   </div>
 
   <script>
-    const container = document.getElementById('app');
+    const app = document.getElementById('app');
     const prompt = document.getElementById('prompt');
-    const floatImg = document.getElementById('floatImg');
+    const ui = document.getElementById('ui');
     const audio = document.getElementById('bg-audio');
 
     let activated = false;
@@ -88,21 +141,15 @@
       activated = true;
 
       prompt.classList.add('hidden');
+      try { await audio.play(); } catch {}
 
-      try {
-        await audio.play();
-      } catch (e) {
-        console.warn("Requiere interacción adicional");
-      }
-
-      // Mostrar la imagen un poco después de la transición del texto
-      setTimeout(() => {
-        floatImg.classList.add('show');
+      setTimeout(()=> {
+        ui.classList.add('show');
       }, 450);
     }
 
-    container.addEventListener('click', activate, { once: true });
-    container.addEventListener('touchstart', activate, { once: true });
+    app.addEventListener('click', activate, { once: true });
+    app.addEventListener('touchstart', activate, { once: true });
   </script>
 </body>
 </html>
