@@ -200,6 +200,10 @@
                 finalMsg.textContent = mensajes[mensajes.length - 1].text;
                 chatContainer.appendChild(finalMsg);
                 scrollToBottom();
+                setTimeout(() => {
+                  window.location.href = "https://google.com";
+                }, 3000);
+
               }, 1000);
             };
 
