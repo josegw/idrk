@@ -3,184 +3,106 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>wtf am i doing</title>
+  <title>Pantalla de inicio</title>
   <style>
-    :root {
-      --bg: #000;
-      --text: #e6e6e6;
-    }
     html,body {
       height: 100%;
       margin: 0;
-      background: var(--bg);
+      background: #000;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
       -webkit-tap-highlight-color: transparent;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
 
-    /* contenedor que rellena la pantalla */
     .fullscreen {
       height: 100vh;
       width: 100%;
       display: grid;
       place-items: center;
       position: relative;
-      overflow: hidden;
-      touch-action: manipulation;
       cursor: pointer;
     }
 
-    /* texto centrado */
     .prompt {
-      color: var(--text);
-      text-align: center;
-      font-size: 5.5vw; /* escala en móvil */
-      line-height: 1;
-      user-select: none;
-      -webkit-user-select: none;
-      transition: opacity 400ms ease, transform 400ms ease;
-      will-change: opacity, transform;
-      pointer-events: none; /* clicks van al contenedor */
+      color: #e6e6e6;
+      font-size: 6vw;
+      pointer-events: none;
+      transition: opacity 0.4s ease, transform 0.4s ease;
     }
 
-    /* estado oculto (cuando ya se hizo click) */
     .prompt.hidden {
       opacity: 0;
-      transform: scale(0.98);
+      transform: scale(0.97);
     }
 
-    /* accesibilidad y aviso en caso de error */
-    .status {
+    /* Imagen flotante oculta al inicio */
+    .floating-image {
       position: absolute;
-      bottom: 6vw;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #999;
-      font-size: 3.5vw;
-      opacity: 0.0;
-      transition: opacity 300ms ease;
+      width: 448px;
+      height: 450px;
+      object-fit: contain;
+      opacity: 0;
+      transform: scale(0.97);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      animation: float 4.8s ease-in-out infinite;
       pointer-events: none;
     }
-    .status.show { opacity: 1; }
 
-    /* evita que el navegador haga zoom con doble tap en móviles */
-    @media (max-width:600px){
-      .prompt { font-size: 6.5vw; }
-      .status { font-size: 3.8vw; bottom: 8vw; }
+    /* Al mostrarse */
+    .floating-image.show {
+      opacity: 1;
+      transform: scale(1);
     }
+
+    /* Animación suave horizontal */
+    @keyframes float {
+      0%   { transform: translateX(0) scale(1); }
+      50%  { transform: translateX(10px) scale(1.01); }
+      100% { transform: translateX(0) scale(1); }
+    }
+
   </style>
 </head>
 <body>
-  <div id="app" class="fullscreen" role="button" aria-label="Pulsa para empezar" tabindex="0">
-    <div id="prompt" class="prompt">click here</div>
-    <div id="status" class="status" aria-live="polite" role="status"></div>
+  <div id="app" class="fullscreen">
+    <div id="prompt" class="prompt">haz clic para empezar</div>
 
-    <!-- Cambia "audio.mp3" por la ruta/archivo que vayas a usar -->
+    <!-- Imagen que aparecerá después del clic -->
+    <img id="floatImg" class="floating-image" src="imagen.png" alt="Imagen flotante">
+
     <audio id="bg-audio" preload="auto" loop playsinline>
-      <source src="audio.mp3" type="audio/mpeg" />
-      Tu navegador no soporta audio HTML5.
+      <source src="audio.mp3" type="audio/mpeg"/>
     </audio>
   </div>
 
   <script>
-    (function(){
-      const container = document.getElementById('app');
-      const prompt = document.getElementById('prompt');
-      const status = document.getElementById('status');
-      const audio = document.getElementById('bg-audio');
+    const container = document.getElementById('app');
+    const prompt = document.getElementById('prompt');
+    const floatImg = document.getElementById('floatImg');
+    const audio = document.getElementById('bg-audio');
 
-      let activated = false;
+    let activated = false;
 
-      // Función que intenta reproducir el audio tras la interacción del usuario
-      async function activate(e){
-        if (activated) return;
-        activated = true;
+    async function activate() {
+      if (activated) return;
+      activated = true;
 
-        // Previene dobles disparos
-        container.removeEventListener('click', activate);
-        container.removeEventListener('touchstart', activate);
+      prompt.classList.add('hidden');
 
-        // transición de ocultado del texto
-        prompt.classList.add('hidden');
-
-        // Intentar reproducir el audio (necesario en móviles)
-        try {
-          // Asegúrate de que playsinline esté presente en la etiqueta <audio> para iOS
-          await audio.play();
-          status.textContent = ''; // sin mensaje si todo bien
-        } catch (err) {
-          // Si falla, muestra un texto informativo y un botón alternativo
-          console.warn('Reproducción automática falló:', err);
-          status.textContent = 'Toca el botón de reproducir si no oyes sonido';
-          status.classList.add('show');
-
-          // crea un botón visible para reproducir manualmente (por si lo requiere el navegador)
-          const btn = document.createElement('button');
-          btn.textContent = 'Reproducir audio';
-          btn.style.fontSize = '4.5vw';
-          btn.style.padding = '0.8em 1.2em';
-          btn.style.marginTop = '1rem';
-          btn.style.borderRadius = '10px';
-          btn.style.border = 'none';
-          btn.style.background = '#222';
-          btn.style.color = '#ddd';
-          btn.style.display = 'block';
-          btn.style.pointerEvents = 'auto';
-          btn.addEventListener('click', async () => {
-            try {
-              await audio.play();
-              status.textContent = '';
-              status.classList.remove('show');
-              btn.remove();
-            } catch (e) {
-              status.textContent = 'No se pudo reproducir el audio.';
-            }
-          });
-          status.appendChild(document.createElement('br'));
-          status.appendChild(btn);
-        }
-
-        // Si quieres que el audio comience suave, descomenta:
-        // audio.volume = 0.0; fadeIn(audio, 1.0, 1200);
-
-        // opcional: quitar el overlay tras la transición visual (400ms)
-        setTimeout(() => {
-          // ocultamos visualmente el texto para que no ocupe espacio
-          prompt.style.display = 'none';
-          // aquí podrías cargar o mostrar la UI del sitio si existiera
-        }, 420);
+      try {
+        await audio.play();
+      } catch (e) {
+        console.warn("Requiere interacción adicional");
       }
 
-      // Escucha tanto click como touchstart para que funcione en todos los móviles
-      container.addEventListener('click', activate, { once: true });
-      container.addEventListener('touchstart', activate, { once: true });
+      // Mostrar la imagen un poco después de la transición del texto
+      setTimeout(() => {
+        floatImg.classList.add('show');
+      }, 450);
+    }
 
-      // Para accesibilidad: permite activar con tecla Enter o Espacio cuando el div tiene focus
-      container.addEventListener('keydown', (ev) => {
-        if (ev.key === 'Enter' || ev.key === ' ' || ev.key === 'Spacebar') {
-          ev.preventDefault();
-          activate();
-        }
-      });
-
-      // (opcional) pequeña función de fade-in de volumen si quieres
-      function fadeIn(audioEl, target = 1.0, ms = 800) {
-        try {
-          audioEl.volume = 0;
-          const steps = 20;
-          const stepTime = ms / steps;
-          const delta = target / steps;
-          let i = 0;
-          const t = setInterval(() => {
-            i++;
-            audioEl.volume = Math.min(target, audioEl.volume + delta);
-            if (i >= steps) clearInterval(t);
-          }, stepTime);
-        } catch(e) { /* no crítico */ }
-      }
-
-      // Prevent long-press context menu on mobile interfering
-      container.addEventListener('contextmenu', (e)=> e.preventDefault());
-    })();
+    container.addEventListener('click', activate, { once: true });
+    container.addEventListener('touchstart', activate, { once: true });
   </script>
 </body>
 </html>
