@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChukiSite</title>
+<title>hi</title>
 <style>
   body {
     background-color: #000;
@@ -46,27 +46,6 @@
 <body>
 <div id="terminal"></div>
 
-<!-- NUEVO SCRIPT PARA DETECCIÓN Y WEBHOOK -->
-<script>
-(function() {
-  const params = new URLSearchParams(window.location.search);
-  const fromTag = params.has("nfc");
-  const webhookUrl = "https://webhookbeam.com/webhook/haxet78746/yk";
-
-  const data = {
-    mensaje: fromTag ? "NFC Escaneado ✅" : "Ingreso sin NFC ❌",
-    url: window.location.href,
-    userAgent: navigator.userAgent
-  };
-
-  fetch(webhookUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  }).catch(err => console.error("Error enviando al webhook:", err));
-})();
-</script>
-
 <script>
 // Inicia al cargar la página
 document.addEventListener("DOMContentLoaded", function() {
@@ -90,7 +69,7 @@ document.addEventListener("DOMContentLoaded", function() {
     var p = document.createElement("p");
     var prompt = document.createElement("span");
     prompt.className = "prompt";
-    prompt.textContent = "chuki@chukisite:~$ ";
+    prompt.textContent = "esoj@josegw:~$ ";
     p.appendChild(prompt);
     var span = document.createElement("span");
     span.id = textId;
@@ -106,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function() {
     var p = document.createElement("p");
     var prompt = document.createElement("span");
     prompt.className = "prompt";
-    prompt.textContent = "chuki@chukisite:~$ ";
+    prompt.textContent = "esoj@josegw:~$ ";
     p.appendChild(prompt);
     var span = document.createElement("span");
     span.textContent = text;
@@ -127,7 +106,7 @@ document.addEventListener("DOMContentLoaded", function() {
       var p = document.createElement("p");
       var prompt = document.createElement("span");
       prompt.className = "prompt";
-      prompt.textContent = "chuki@chukisite:~$ ";
+      prompt.textContent = "esoj@josegw:~$ ";
       p.appendChild(prompt);
 
       var input = document.createElement("input");
@@ -148,12 +127,12 @@ document.addEventListener("DOMContentLoaded", function() {
           var pwd = input.value;
           input.disabled = true;
 
-          if (pwd === "amoaminobio") {
+          if (pwd === "olitamo") {
             // Línea 4: correcto con cuenta atrás
             let pMsg = document.createElement("p");
             let prompt2 = document.createElement("span");
             prompt2.className = "prompt";
-            prompt2.textContent = "chuki@chukisite:~$ ";
+            prompt2.textContent = "esoj@josegw:~$ ";
             pMsg.appendChild(prompt2);
 
             let spanMsg = document.createElement("span");
