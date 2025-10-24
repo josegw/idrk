@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chukisite</title>
+  <title>hi</title>
   <style>
     @font-face {
       font-family: 'Minecraftia';
@@ -103,7 +103,7 @@
         if (isPrompt) {
           const prompt = document.createElement("span");
           prompt.className = "prompt";
-          prompt.textContent = "chuki@chukisite:~$ ";
+          prompt.textContent = "esoj@josegw:~$ ";
           p.appendChild(prompt);
         }
         const span = document.createElement("span");
@@ -121,7 +121,7 @@
         const p = document.createElement("p");
         const prompt = document.createElement("span");
         prompt.className = "prompt";
-        prompt.textContent = "chuki@chukisite:~$ ";
+        prompt.textContent = "esoj@josegw:~$ ";
         p.appendChild(prompt);
 
         const label = document.createElement("span");
@@ -165,7 +165,7 @@
           if (msg.system) {
             line.innerHTML = `<span class="yellow">${msg.text}</span>`;
           } else {
-            line.innerHTML = `&lt;tilin&gt; ${msg.text}`;
+            line.innerHTML = `&lt;esoj&gt; ${msg.text}`;
           }
           chatContainer.appendChild(line);
           scrollToBottom();
@@ -210,7 +210,7 @@
         // Mostrar "joined the game" primero
         const joined = document.createElement("div");
         joined.className = "chat-message yellow";
-        joined.textContent = "tilin joined the game";
+        joined.textContent = "esoj joined the game";
         chatContainer.appendChild(joined);
 
         // Esperar 1 segundo y empezar la secuencia
@@ -233,34 +233,38 @@
                 const textoContador = document.createElement("p");
                 const prompt = document.createElement("span");
                 prompt.className = "prompt";
-                prompt.textContent = "chuki@chukisite:~$ ";
+                prompt.textContent = "esoj@josegw:~$ ";
                 textoContador.appendChild(prompt);
 
                 const texto = document.createElement("span");
-                texto.textContent = `Yo mash 💖. Espera ${segundos} segundos`;
+                texto.textContent = `Yo mas 💖. Espera ${segundos} segundos`;
                 textoContador.appendChild(texto);
                 terminal.appendChild(textoContador);
 
                 const intervalo = setInterval(() => {
                   segundos--;
-                  texto.textContent = `Yo mash 💖. Espera ${segundos} segundos`;
+                  texto.textContent = `Yo mas 💖. Espera ${segundos} segundos`;
                   if (segundos <= 0) {
                     clearInterval(intervalo);
                     mostrarChatMensajesSecuenciales([
                       {
-                        text: "Felices 1 año y 6 meses d ser tilines, no te quise hacer una cartita por que te quise hacer algo mas creativo y aqui estoy.",
+                        text: "Hola linda como estasss.",
                         system: false
                       },
                       {
-                        text: "Tamo con todo mi corazoncito d pollo, perdoname por no ser el mejor para ti y ser el tilin mas molesto que pudiste haber tenido, intento mejorar cada dia para ser de tu agrado.",
+                        text: "Te quiero tanto con toda mi alma y mi corazoncito.",
                         system: false
                       },
                       {
-                        text: "Buenio, como te dije antes te amo mucho, porfi pelame, t amo demasaiooo, ahola si ya mi voy, bai.. Anioshiniii.",
+                        text: "Perdoname por hacerte enojar mucho y estresarte JAJAJAJAJAJA",
                         system: false
                       },
                       {
-                        text: "tilin left the game",
+                        text: "Pero bueno, tengo una cosita que preguntarte, asi que da click y solo espera a que te redirija.",
+                        system: false
+                      },
+                      {
+                        text: "esoj left the game",
                         system: true
                       }
                     ]);
@@ -268,7 +272,7 @@
                 }, 1000);
               } else {
                 addLine("Okei 😔");
-                setTimeout(() => limpiarYRedirigir("https://www.cometeuna.com"), 2000);
+                setTimeout(() => limpiarYRedirigir("https://google.com"), 2000);
               }
             });
           }, 1000);
