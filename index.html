@@ -47,6 +47,13 @@
 <div id="terminal"></div>
 
 <script>
+// === SISTEMA DE ENCENDIDO/APAGADO ===
+const siteActive = true; // ← cambia a false para apagar el sitio
+
+if (!siteActive) {
+  window.location.href = "https://www.google.com";
+}
+
 // Inicia al cargar la página
 document.addEventListener("DOMContentLoaded", function() {
   var terminal = document.getElementById("terminal");
